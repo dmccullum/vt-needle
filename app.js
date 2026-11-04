@@ -1,7 +1,7 @@
 (function () {
   "use strict";
   const M = window.VTModel;
-  const $ = (id) => document.getElementById(id);
+  const $ = (id) => document.getElementById(id) || document.createElement("input");
   const NS = "http://www.w3.org/2000/svg";
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
@@ -59,9 +59,20 @@
       { a: Mg(-60), t: "+60" }, { a: Mg(-30), t: "+30" }, { a: Mg(-10), t: "+10" }, { a: 0, t: "Even" },
       { a: Mg(10), t: "+10" }, { a: Mg(30), t: "+30" }, { a: Mg(60), t: "+60" },
     ]);
+    // 90% range band, drawn just inside the dial and under the needle
+    gM.range = el("path", { d: "", "fill-opacity": 0.55 }, $("gMargin"));
+    $("gMargin").insertBefore(gM.range, gM.node);
     setAngle(gP); setAngle(gM);
+    if (out) drawRange();
   }
   const MRANGE = 60;
+  const mAng = (m) => (Math.max(-MRANGE, Math.min(MRANGE, m)) / MRANGE) * 90;
+  function drawRange() {
+    if (!gM.range || !out) return;
+    const a0 = mAng(out.margin.p05), a1 = Math.max(a0 + 0.8, mAng(out.margin.p95));
+    gM.range.setAttribute("d", arc(a0, a1, R0 - 14, R0 - 5));
+    gM.range.setAttribute("fill", css(out.margin.med > 0 ? "--rep" : "--dem"));
+  }
   const gP = { node: null, cur: 0, target: 0 };
   const gM = { node: null, cur: 0, target: 0 };
   const setAngle = (g) => g.node && g.node.setAttribute("transform", `rotate(${g.cur} ${CX} ${CY})`);
@@ -113,7 +124,10 @@
     const o = out, p = o.pWin;
     $("probBig").innerHTML = p >= 0.5 ? `<span style="color:var(--rep)">${pct(p)} ${last(cfg.rName)}</span>` : `<span style="color:var(--dem)">${pct(1 - p)} ${last(cfg.dName)}</span>`;
     $("marginBig").innerHTML = `<span class="${cls(o.margin.med)}" style="color:var(--${o.margin.med > 0 ? "rep" : "dem"})">${fmtM(o.margin.med)}</span>`;
-    $("marginSub").textContent = `90% range: ${fmtM(o.margin.p05, true)} to ${fmtM(o.margin.p95, true)}`;
+    const moe = (o.margin.p95 - o.margin.p05) / 2;
+    $("marginSub").textContent = `± ${moe.toFixed(1)} pts`;
+    $("marginSub").title = `90% range: ${fmtM(o.margin.p05, true)} to ${fmtM(o.margin.p95, true)}`;
+    drawRange();
 
     const leader = p >= 0.5 ? cfg.rName : cfg.dName, lc = p >= 0.5 ? "r" : "d", d = describe(p);
     let h;
@@ -157,35 +171,46 @@
 
   function renderHistory() {
     const svg = $("hist"); svg.innerHTML = "";
-    const W = 820, L = 52, Rt = 14, T1 = 10, H1 = 150, T2 = 190, H2 = 56;
+    const W = 820, H = 240, L = 52, Rt = 76, T = 14, Hc = 184, B = T + Hc;
     const n = history.length; if (!n) return;
-    const xs = (i) => L + (n === 1 ? (W - L - Rt) / 2 : (i / (n - 1)) * (W - L - Rt));
-    let lo = Math.min(0, ...history.map((h) => h.p05)), hi = Math.max(0, ...history.map((h) => h.p95));
-    lo = Math.floor(lo / 10) * 10; hi = Math.ceil(hi / 10) * 10;
-    const ym = (m) => T1 + H1 - ((m - lo) / (hi - lo)) * H1;
-    const yp = (p) => T2 + H2 - p * H2;
     const F = css("--faint"), Rr = css("--rep"), D = css("--dem"), FG = css("--fg"), RULE = css("--rule");
-    for (let v = lo; v <= hi; v += 10) {
+    // x = share of the expected vote counted (0–100%)
+    // x spans the part of the night we have (to the nearest 10%), so a late start isn't squeezed right
+    const pcts = history.map((h) => Math.min(1, h.pctIn || 0));
+    const x0 = Math.floor(Math.min(...pcts) * 10) / 10, x1 = Math.max(x0 + 0.1, Math.ceil(Math.max(...pcts) * 10 + 1e-9) / 10);
+    const xstep = x1 - x0 > 0.5 ? 0.25 : x1 - x0 > 0.2 ? 0.1 : 0.05;
+    const xp = (q) => L + ((q - x0) / (x1 - x0)) * (W - L - Rt);
+    const xs = (h) => xp(Math.min(1, h.pctIn || 0));
+    // y fits the 90% range; "Even" is shown only when the race is near it
+    let lo = Math.min(...history.map((h) => h.p05)), hi = Math.max(...history.map((h) => h.p95));
+    if (lo < 6 && hi > -6) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+    const span = Math.max(4, hi - lo), step = span > 30 ? 10 : span > 12 ? 5 : 2;
+    lo = Math.floor((lo - span * 0.1) / step) * step; hi = Math.ceil((hi + span * 0.1) / step) * step;
+    const ym = (m) => T + Hc - ((m - lo) / (hi - lo)) * Hc;
+    for (let v = lo; v <= hi; v += step) {
       el("line", { x1: L, x2: W - Rt, y1: ym(v), y2: ym(v), stroke: v === 0 ? F : RULE }, svg);
-      const t = el("text", { x: L - 6, y: ym(v) + 4, "text-anchor": "end" }, svg); t.textContent = v === 0 ? "Even" : (v > 0 ? "R+" : "D+") + Math.abs(v);
+      const t = el("text", { x: L - 8, y: ym(v) + 4, "text-anchor": "end" }, svg); t.textContent = v === 0 ? "Even" : (v > 0 ? "R+" : "D+") + Math.abs(v);
     }
-    const band = (a, b, op) => {
-      const d = history.map((h, i) => `${i ? "L" : "M"}${xs(i)},${ym(h[a])}`).join("") + history.slice().reverse().map((h, j) => `L${xs(n - 1 - j)},${ym(h[b])}`).join("") + "Z";
-      el("path", { d, fill: FG, "fill-opacity": op }, svg);
-    };
-    if (n > 1) { band("p05", "p95", 0.07); band("p25", "p75", 0.12); }
-    el("polyline", { points: history.map((h, i) => `${xs(i)},${ym(h.med)}`).join(" "), fill: "none", stroke: FG, "stroke-width": 2 }, svg);
-    const lh = history[n - 1];
-    el("circle", { cx: xs(n - 1), cy: ym(lh.med), r: 4, fill: lh.med > 0 ? Rr : D }, svg);
-
-    [0, 0.5, 1].forEach((v) => {
-      el("line", { x1: L, x2: W - Rt, y1: yp(v), y2: yp(v), stroke: v === 0.5 ? F : RULE, "stroke-dasharray": v === 0.5 ? "3 3" : "" }, svg);
-      const t = el("text", { x: L - 6, y: yp(v) + 4, "text-anchor": "end" }, svg); t.textContent = v === 0.5 ? "50%" : v ? "100%" : "0%";
-    });
-    const t2 = el("text", { x: L, y: T2 - 8 }, svg); t2.textContent = `Chance ${last(cfg.rName)} wins`;
-    el("polyline", { points: history.map((h, i) => `${xs(i)},${yp(h.p)}`).join(" "), fill: "none", stroke: Rr, "stroke-width": 2 }, svg);
-    const t3 = el("text", { x: W - Rt, y: T2 + H2 + 18, "text-anchor": "end" }, svg); t3.textContent = `${pct(lh.pctIn)} of expected vote counted →`;
-    const t4 = el("text", { x: L, y: T2 + H2 + 18 }, svg); t4.textContent = "Start";
+    for (let q = Math.ceil(x0 / xstep - 1e-9) * xstep; q <= x1 + 1e-9; q += xstep) {
+      const x = xp(q);
+      el("line", { x1: x, x2: x, y1: B, y2: B + 4, stroke: F }, svg);
+      const t = el("text", { x, y: B + 18, "text-anchor": "middle" }, svg); t.textContent = Math.round(q * 100) + "%";
+    }
+    const tl = el("text", { x: W - Rt, y: B + 34, "text-anchor": "end" }, svg); tl.textContent = "Share of expected vote counted";
+    const pts = history.map((h) => [xs(h), h]);
+    if (n > 1) {
+      const band = (a, b, op) => {
+        const d = pts.map(([x, h], i) => `${i ? "L" : "M"}${x},${ym(h[a])}`).join("") + pts.slice().reverse().map(([x, h]) => `L${x},${ym(h[b])}`).join("") + "Z";
+        el("path", { d, fill: FG, "fill-opacity": op }, svg);
+      };
+      band("p05", "p95", 0.06); band("p25", "p75", 0.12);
+    }
+    el("polyline", { points: pts.map(([x, h]) => `${x},${ym(h.med)}`).join(" "), fill: "none", stroke: FG, "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+    const [lx, lh] = pts[n - 1], col = lh.med > 0 ? Rr : D;
+    el("circle", { cx: lx, cy: ym(lh.med), r: 4.5, fill: col }, svg);
+    const lab = el("text", { x: lx + 10, y: ym(lh.med) + 4, style: `fill:${col};font-weight:700;font-size:13px` }, svg);
+    lab.textContent = fmtM(lh.med, true);
+    svg.setAttribute("viewBox", `0 0 ${W} ${H + 8}`);
   }
 
   // ---------- Data sources ----------
@@ -295,12 +320,14 @@
   const fillPrior = () => { $("pMargin").value = prior.margin; $("pSd").value = prior.marginSd; $("pTurn").value = prior.turnout; $("pOther").value = prior.otherShare; };
   $("applyPrior").onclick = () => {
     prior = { ...prior, margin: +$("pMargin").value, marginSd: Math.max(2, +$("pSd").value), turnout: Math.max(50000, +$("pTurn").value), otherShare: Math.min(0.3, Math.max(0, +$("pOther").value)) };
-    cfg.rName = $("cR").value.trim() || cfg.rName; cfg.dName = $("cD").value.trim() || cfg.dName;
+    if (document.getElementById("cR")) { cfg.rName = $("cR").value.trim() || cfg.rName; cfg.dName = $("cD").value.trim() || cfg.dName; }
     cfg.rLast = last(cfg.rName); cfg.dLast = last(cfg.dName); cfg.jitter = $("jitter").checked;
     setNames();
     model = M.build(window.VT_BASELINE, prior);
     // re-key existing results against the rebuilt model (same keys)
-    history = []; demo = null; stopDemo();
+    demo = null; stopDemo();
+    if (hostedTimer) { clearInterval(hostedTimer); hostedTimer = null; hostedLast = null; startHosted().catch(goSOS); return; }
+    history = [];
     recompute("Priors updated");
   };
   $("jitter").onchange = () => (cfg.jitter = $("jitter").checked);
@@ -311,6 +338,17 @@
     document.querySelectorAll("#tabs button").forEach((x) => x.classList.toggle("on", x === b));
     document.querySelectorAll(".src").forEach((s) => s.classList.toggle("on", s.dataset.src === b.dataset.src));
   }));
+
+  // Light/dark switch: starts from the system setting, remembers the choice
+  const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  const syncThemeBtn = () => $("themeBtn").setAttribute("aria-label", isDark() ? "Switch to light mode" : "Switch to dark mode");
+  $("themeBtn").onclick = () => {
+    const next = isDark() ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("vt-theme", next); } catch (e) {}
+    syncThemeBtn(); buildGauges(); if (out) render();
+  };
+  syncThemeBtn();
 
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { buildGauges(); if (out) render(); });
 
@@ -353,18 +391,11 @@
       } catch (e) { /* skip bad snapshot */ }
     }
     $("sosStart").textContent = "Live (hosted)"; $("sosStart").disabled = true;
-    document.querySelector('.src[data-src="sos"] .note').textContent =
-      "Unofficial town results from the Vermont Secretary of State, collected every 2 minutes.";
     await hostedFetch();
     hostedTimer = setInterval(hostedFetch, 60000);
   }
 
-  if (location.protocol.startsWith("http") && !/claude|artifact/.test(location.hostname)) {
-    startHosted().catch(() =>
-      fetch("results/latest.json", { method: "HEAD", cache: "no-store" }).then((r) => {
-        if (!r.ok || apTimer || demoTimer) return goSOS();
-        document.querySelector('#tabs button[data-src="ap"]').click();
-        $("apStart").click();
-      }).catch(goSOS));
-  } else goSOS();
+  // Hosted live/ files when this site has them, else read SOS directly.
+  if (location.protocol.startsWith("http")) startHosted().catch(goSOS);
+  else goSOS();
 })();
