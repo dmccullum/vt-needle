@@ -25,8 +25,8 @@ python3 scripts/poll_sos.py     # one SOS check; refreshes live/ (no commit)
 
 ## Model
 
-- **Baseline** (`data/baseline.js`): 246 towns, with governor results from 2016 through 2024, and president from 2020. Sources are OpenElections for 2016–2020, the Vermont Election Archive for 2022, and the Secretary of State's official 2024 results. The town lean uses 2016–2022; 2024 is used only for comparisons. Essex Junction is folded into Essex. SOS reports them separately, and the parser merges them using their 2022 vote shares.
-- **Prior:** a statewide Scott margin (default R+40 ± 14) and turnout (default 290k ± 8%). Each town's expected share is that prior shifted by its historical lean in logit space, with 2022 weighted most. Expected turnout comes mostly from the 2022 and 2018 midterms. You can change these on the page under Model settings.
+- **Baseline** (`data/baseline.js`): 246 towns, with governor results from 2016 through 2024, and president from 2020. Sources are OpenElections for 2016–2020, the Vermont Election Archive for 2022, and the Secretary of State's official 2024 results. Essex Junction is folded into Essex. SOS reports them separately, and the parser merges them using their 2022 vote shares.
+- **Prior:** a statewide Scott margin (default R+40 ± 14) and turnout (default 290k ± 8%). Each town's expected share is that prior shifted by its historical lean in logit space (weights: 2016 0.15, 2018 0.25, 2020 0.10, 2022 0.25, 2024 0.25). Expected turnout comes mostly from the 2022 and 2018 midterms (2024 gets a light 0.15 weight). You can change these on the page under Model settings.
 - **Live update:** each reporting town gives a residual, its actual result minus its expected result. The model pools these residuals into three estimates (logit space):
   - a statewide swing
   - county swings, pulled toward the statewide swing (county σ 0.10, town σ 0.22)

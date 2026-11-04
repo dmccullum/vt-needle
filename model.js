@@ -65,10 +65,11 @@
     // relative to the state) and in each town's expected share of the statewide vote.
     // Recent and competitive races count more; midterms drive the turnout geography.
     const YEARS = [
-      { y: 16, lean: 0.20, turn: 0.00 },
-      { y: 18, lean: 0.30, turn: 0.30 },
-      { y: 20, lean: 0.15, turn: 0.10 },
-      { y: 22, lean: 0.35, turn: 0.60 },
+      { y: 16, lean: 0.15, turn: 0.00 },
+      { y: 18, lean: 0.25, turn: 0.25 },
+      { y: 20, lean: 0.10, turn: 0.05 },
+      { y: 22, lean: 0.25, turn: 0.55 },
+      { y: 24, lean: 0.25, turn: 0.15 }, // presidential year: light turnout weight
     ].filter((Y) => rows[0]["r" + Y.y] != null);
     const lw = sum(YEARS, (Y) => Y.lean), tw = sum(YEARS, (Y) => Y.turn);
     YEARS.forEach((Y) => {
