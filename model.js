@@ -49,6 +49,9 @@
     town: 0.22,        // town idiosyncratic deviation (logit)
     countyTurn: 0.06,  // county turnout deviation (log)
     townTurn: 0.12,    // town turnout deviation (log)
+    slope: 0.15,       // prior SD of the "swing depends on town lean" slope
+    late: 0.06,        // shared error on ALL outstanding votes (logit, ~±3 pts margin of the remaining vote)
+    lateTurn: 0.04,    // shared turnout error on outstanding votes (log)
   };
 
   const norm = (s) =>
@@ -158,7 +161,7 @@
         e = logit(s) - t.mu;
         // town noise + binomial noise + extra noise for a partial count
         v = SIG.town ** 2 + 1 / (tp * s * (1 - s)) + (frac < 1 ? 0.15 ** 2 * (1 - frac) : 0);
-        (shareObs[t.county] = shareObs[t.county] || []).push({ e, v });
+        (shareObs[t.county] = shareObs[t.county] || []).push({ e, v, x: t.lean, t });
       }
       if (frac >= 0.999 && t.expVotes > 1) {
         const u = Math.log((x.r + x.d + x.o) / t.expVotes);
@@ -167,6 +170,22 @@
       return { x, frac, e, v };
     });
 
+    // Lean slope: do towns swing more (or less) depending on how they usually vote?
+    // Weighted regression of residuals on town lean, shrunk toward 0, then removed
+    // before the state/county pooling. Links similar towns across county lines.
+    const all = Object.values(shareObs).flat();
+    let beta = 0, betaSd = SIG.slope;
+    if (all.length >= 5) {
+      let sw = 0, sx = 0, se = 0;
+      for (const o of all) { const w = 1 / (o.v + SIG.county ** 2); sw += w; sx += w * o.x; se += w * o.e; }
+      const mx = sx / sw, me = se / sw;
+      let sxx = 0, sxe = 0;
+      for (const o of all) { const w = 1 / (o.v + SIG.county ** 2); sxx += w * (o.x - mx) ** 2; sxe += w * (o.x - mx) * (o.e - me); }
+      const prec = sxx + 1 / SIG.slope ** 2;
+      beta = sxe / prec; betaSd = Math.sqrt(1 / prec);
+      for (const o of all) o.e -= beta * o.x;
+      rep.forEach((q, i) => { if (q && isFinite(q.v)) q.e -= beta * towns[i].lean; });
+    }
     const hs = hier(shareObs, model.sigState, SIG.county);
     const ht = hier(turnObs, prior.turnoutSd, SIG.countyTurn);
     const otherK = (obsOther + 3000 * prior.otherShare) / (expOtherRep + 3000 * prior.otherShare);
@@ -179,6 +198,10 @@
     for (let k = 0; k < N; k++) {
       const st = hs.mean + hs.sd * r.normal();
       const tu = ht.mean + ht.sd * r.normal();
+      const b = beta + betaSd * r.normal();
+      // One shared shift for every vote still outstanding in this simulation, so
+      // "the late vote is all bluer/redder" doesn't average away across towns.
+      const late = SIG.late * r.normal(), lateT = SIG.lateTurn * r.normal();
       const cE = {}, cT = {};
       for (const c of C) { cE[c] = drawCounty(hs, c, st, r); cT[c] = drawCounty(ht, c, tu, r); }
       let R = 0, D = 0, Ot = 0;
@@ -188,18 +211,18 @@
         if (q && q.frac >= 0.999) {
           tr = q.x.r; td = q.x.d; to = q.x.o;
         } else {
-          let lmu = t.mu + st + cE[t.county], total, have = 0;
+          let lmu = t.mu + st + cE[t.county] + b * t.lean + late, total, have = 0;
           if (q) {
             // partial town: lean on its own count, then add what's left
             const resid = q.e - st - cE[t.county];
             const w = (1 / q.v) / (1 / q.v + 1 / SIG.town ** 2);
             lmu += w * resid + r.normal() * Math.sqrt(1 / (1 / q.v + 1 / SIG.town ** 2));
             have = q.x.r + q.x.d + q.x.o;
-            total = Math.max(have, (have / q.frac) * Math.exp(0.06 * (1 - q.frac) * r.normal()));
+            total = Math.max(have, (have / q.frac) * Math.exp(0.06 * (1 - q.frac) * r.normal() + lateT * (1 - q.frac)));
             tr = q.x.r; td = q.x.d; to = q.x.o;
           } else {
             lmu += SIG.town * r.normal();
-            total = t.expVotes * Math.exp(tu + cT[t.county] + SIG.townTurn * r.normal());
+            total = t.expVotes * Math.exp(tu + cT[t.county] + SIG.townTurn * r.normal() + lateT);
           }
           const rem = total - have;
           const oth = rem * Math.min(0.4, t.expOther * otherK);
@@ -241,7 +264,7 @@
         margin: countedAll ? (100 * (counted.r - counted.d)) / countedAll : null },
       townsIn: rep.filter((x) => x && x.frac >= 0.999).length,
       townsPartial: rep.filter((x) => x && x.frac < 0.999).length,
-      swing: { state: hs.mean, sd: hs.sd }, turnoutAdj: Math.exp(ht.mean),
+      swing: { state: hs.mean, sd: hs.sd }, slope: { beta, sd: betaSd }, turnoutAdj: Math.exp(ht.mean),
       counties: countyOut,
     };
   }
@@ -377,20 +400,28 @@
   }
 
   // ---------- Demo: a fake election night ----------
-  function demoNight(model, seed) {
+  // opts.lateSd: a shift that grows with reporting order (late towns systematically
+  // different); opts.slopeSd: swing that depends on town lean. Both default to 0.
+  function demoNight(model, seed, opts) {
+    opts = opts || {};
     const r = rng(seed || Date.now());
     const st = model.sigState * r.normal() * 1.1;
+    const lateShift = (opts.lateSd || 0) * r.normal();
+    const slope = (opts.slopeSd || 0) * r.normal();
     const tu = model.prior.turnoutSd * r.normal();
     const cE = {}, cT = {};
     model.counties.forEach((c) => { cE[c] = SIG.county * r.normal(); cT[c] = SIG.countyTurn * r.normal(); });
     const truth = model.towns.map((t) => {
       const total = Math.round(t.expVotes * Math.exp(tu + cT[t.county] + SIG.townTurn * r.normal()));
-      const s = inv(t.mu + st + cE[t.county] + SIG.town * r.normal());
-      const o = Math.round(total * t.expOther), rv = Math.round((total - o) * s);
       // small towns tend to hand-count and report fast; cities later, sometimes in pieces
       const order = r() * 0.8 + Math.log10(Math.max(10, total)) / 5 + (/Chittenden|Washington/.test(t.county) ? 0.1 : 0);
-      return { t, r: rv, d: total - o - rv, o, order, split: total > 4000 };
-    }).sort((a, b) => a.order - b.order);
+      return { t, total, order };
+    }).sort((a, b) => a.order - b.order).map((x, rank, arr) => {
+      const t = x.t, total = x.total, pos = rank / (arr.length - 1); // 0 = first in, 1 = last in
+      const s = inv(t.mu + st + cE[t.county] + slope * t.lean + lateShift * pos + SIG.town * r.normal());
+      const o = Math.round(total * t.expOther), rv = Math.round((total - o) * s);
+      return { t, r: rv, d: total - o - rv, o, order: x.order, split: total > 4000 };
+    });
     const steps = [];
     const cur = new Map();
     const perStep = 8;
