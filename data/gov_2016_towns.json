@@ -1,0 +1,1724 @@
+[
+ {
+  "town": "Addison",
+  "county": "Addison",
+  "r": 578,
+  "d": 196,
+  "o": 11
+ },
+ {
+  "town": "Albany",
+  "county": "Orleans",
+  "r": 320,
+  "d": 114,
+  "o": 23
+ },
+ {
+  "town": "Alburgh",
+  "county": "Grand Isle",
+  "r": 583,
+  "d": 278,
+  "o": 31
+ },
+ {
+  "town": "Andover",
+  "county": "Windsor",
+  "r": 187,
+  "d": 134,
+  "o": 9
+ },
+ {
+  "town": "Arlington",
+  "county": "Bennington",
+  "r": 666,
+  "d": 543,
+  "o": 47
+ },
+ {
+  "town": "Athens",
+  "county": "Windham",
+  "r": 79,
+  "d": 71,
+  "o": 14
+ },
+ {
+  "town": "Bakersfield",
+  "county": "Franklin",
+  "r": 386,
+  "d": 186,
+  "o": 25
+ },
+ {
+  "town": "Baltimore",
+  "county": "Windsor",
+  "r": 81,
+  "d": 44,
+  "o": 3
+ },
+ {
+  "town": "Barnard",
+  "county": "Windsor",
+  "r": 273,
+  "d": 268,
+  "o": 21
+ },
+ {
+  "town": "Barnet",
+  "county": "Caledonia",
+  "r": 553,
+  "d": 367,
+  "o": 39
+ },
+ {
+  "town": "Barre City",
+  "county": "Washington",
+  "r": 2115,
+  "d": 1043,
+  "o": 86
+ },
+ {
+  "town": "Barre Town",
+  "county": "Washington",
+  "r": 3282,
+  "d": 909,
+  "o": 62
+ },
+ {
+  "town": "Barton",
+  "county": "Orleans",
+  "r": 732,
+  "d": 299,
+  "o": 39
+ },
+ {
+  "town": "Belvidere",
+  "county": "Lamoille",
+  "r": 115,
+  "d": 40,
+  "o": 6
+ },
+ {
+  "town": "Bennington",
+  "county": "Bennington",
+  "r": 2646,
+  "d": 3117,
+  "o": 249
+ },
+ {
+  "town": "Benson",
+  "county": "Rutland",
+  "r": 329,
+  "d": 166,
+  "o": 14
+ },
+ {
+  "town": "Berkshire",
+  "county": "Franklin",
+  "r": 444,
+  "d": 148,
+  "o": 20
+ },
+ {
+  "town": "Berlin",
+  "county": "Washington",
+  "r": 945,
+  "d": 406,
+  "o": 25
+ },
+ {
+  "town": "Bethel",
+  "county": "Windsor",
+  "r": 555,
+  "d": 423,
+  "o": 32
+ },
+ {
+  "town": "Bloomfield",
+  "county": "Essex",
+  "r": 70,
+  "d": 36,
+  "o": 5
+ },
+ {
+  "town": "Bolton",
+  "county": "Chittenden",
+  "r": 353,
+  "d": 312,
+  "o": 11
+ },
+ {
+  "town": "Bradford",
+  "county": "Orange",
+  "r": 660,
+  "d": 514,
+  "o": 31
+ },
+ {
+  "town": "Braintree",
+  "county": "Orange",
+  "r": 329,
+  "d": 253,
+  "o": 20
+ },
+ {
+  "town": "Brandon",
+  "county": "Rutland",
+  "r": 1168,
+  "d": 671,
+  "o": 48
+ },
+ {
+  "town": "Brattleboro",
+  "county": "Windsor",
+  "r": 1321,
+  "d": 4286,
+  "o": 239
+ },
+ {
+  "town": "Bridgewater",
+  "county": "Windsor",
+  "r": 260,
+  "d": 227,
+  "o": 22
+ },
+ {
+  "town": "Bridport",
+  "county": "Addison",
+  "r": 442,
+  "d": 204,
+  "o": 10
+ },
+ {
+  "town": "Brighton",
+  "county": "Essex",
+  "r": 388,
+  "d": 137,
+  "o": 27
+ },
+ {
+  "town": "Bristol",
+  "county": "Addison",
+  "r": 1022,
+  "d": 858,
+  "o": 50
+ },
+ {
+  "town": "Brookfield",
+  "county": "Orange",
+  "r": 442,
+  "d": 287,
+  "o": 24
+ },
+ {
+  "town": "Brookline",
+  "county": "Windham",
+  "r": 114,
+  "d": 166,
+  "o": 4
+ },
+ {
+  "town": "Brownington",
+  "county": "Orleans",
+  "r": 273,
+  "d": 109,
+  "o": 13
+ },
+ {
+  "town": "Brunswick",
+  "county": "Essex",
+  "r": 47,
+  "d": 10,
+  "o": 1
+ },
+ {
+  "town": "Burke",
+  "county": "Caledonia",
+  "r": 546,
+  "d": 256,
+  "o": 23
+ },
+ {
+  "town": "Burlington",
+  "county": "Chittenden",
+  "r": 5028,
+  "d": 12946,
+  "o": 639
+ },
+ {
+  "town": "Cabot",
+  "county": "Washington",
+  "r": 432,
+  "d": 333,
+  "o": 29
+ },
+ {
+  "town": "Calais",
+  "county": "Washington",
+  "r": 443,
+  "d": 552,
+  "o": 29
+ },
+ {
+  "town": "Cambridge",
+  "county": "Lamoille",
+  "r": 1068,
+  "d": 808,
+  "o": 58
+ },
+ {
+  "town": "Canaan",
+  "county": "Essex",
+  "r": 277,
+  "d": 127,
+  "o": 13
+ },
+ {
+  "town": "Castleton",
+  "county": "Rutland",
+  "r": 1147,
+  "d": 543,
+  "o": 78
+ },
+ {
+  "town": "Cavendish",
+  "county": "Windsor",
+  "r": 387,
+  "d": 269,
+  "o": 24
+ },
+ {
+  "town": "Charleston",
+  "county": "Orleans",
+  "r": 308,
+  "d": 136,
+  "o": 24
+ },
+ {
+  "town": "Charlotte",
+  "county": "Chittenden",
+  "r": 1207,
+  "d": 1346,
+  "o": 37
+ },
+ {
+  "town": "Chelsea",
+  "county": "Orange",
+  "r": 457,
+  "d": 200,
+  "o": 10
+ },
+ {
+  "town": "Chester",
+  "county": "Windsor",
+  "r": 801,
+  "d": 691,
+  "o": 52
+ },
+ {
+  "town": "Chittenden",
+  "county": "Rutland",
+  "r": 479,
+  "d": 246,
+  "o": 24
+ },
+ {
+  "town": "Clarendon",
+  "county": "Rutland",
+  "r": 861,
+  "d": 361,
+  "o": 26
+ },
+ {
+  "town": "Colchester",
+  "county": "Chittenden",
+  "r": 4478,
+  "d": 3184,
+  "o": 188
+ },
+ {
+  "town": "Concord",
+  "county": "Essex",
+  "r": 408,
+  "d": 130,
+  "o": 28
+ },
+ {
+  "town": "Corinth",
+  "county": "Orange",
+  "r": 394,
+  "d": 265,
+  "o": 24
+ },
+ {
+  "town": "Cornwall",
+  "county": "Addison",
+  "r": 347,
+  "d": 383,
+  "o": 13
+ },
+ {
+  "town": "Coventry",
+  "county": "Orleans",
+  "r": 366,
+  "d": 135,
+  "o": 9
+ },
+ {
+  "town": "Craftsbury",
+  "county": "Orleans",
+  "r": 379,
+  "d": 259,
+  "o": 43
+ },
+ {
+  "town": "Danby",
+  "county": "Rutland",
+  "r": 415,
+  "d": 206,
+  "o": 27
+ },
+ {
+  "town": "Danville",
+  "county": "Caledonia",
+  "r": 897,
+  "d": 411,
+  "o": 24
+ },
+ {
+  "town": "Derby",
+  "county": "Orleans",
+  "r": 1591,
+  "d": 527,
+  "o": 66
+ },
+ {
+  "town": "Dorset",
+  "county": "Bennington",
+  "r": 662,
+  "d": 506,
+  "o": 23
+ },
+ {
+  "town": "Dover",
+  "county": "Windham",
+  "r": 394,
+  "d": 357,
+  "o": 28
+ },
+ {
+  "town": "Dummerston",
+  "county": "Windham",
+  "r": 349,
+  "d": 754,
+  "o": 42
+ },
+ {
+  "town": "Duxbury",
+  "county": "Washington",
+  "r": 464,
+  "d": 305,
+  "o": 19
+ },
+ {
+  "town": "East Haven",
+  "county": "Essex",
+  "r": 106,
+  "d": 34,
+  "o": 5
+ },
+ {
+  "town": "East Montpelier",
+  "county": "Washington",
+  "r": 796,
+  "d": 794,
+  "o": 27
+ },
+ {
+  "town": "Eden",
+  "county": "Lamoille",
+  "r": 402,
+  "d": 141,
+  "o": 20
+ },
+ {
+  "town": "Elmore",
+  "county": "Lamoille",
+  "r": 281,
+  "d": 254,
+  "o": 15
+ },
+ {
+  "town": "Enosburgh",
+  "county": "Franklin",
+  "r": 787,
+  "d": 375,
+  "o": 44
+ },
+ {
+  "town": "Essex",
+  "county": "Chittenden",
+  "r": 6169,
+  "d": 4864,
+  "o": 201
+ },
+ {
+  "town": "Fair Haven",
+  "county": "Rutland",
+  "r": 741,
+  "d": 361,
+  "o": 40
+ },
+ {
+  "town": "Fairfax",
+  "county": "Franklin",
+  "r": 1571,
+  "d": 775,
+  "o": 60
+ },
+ {
+  "town": "Fairfield",
+  "county": "Franklin",
+  "r": 649,
+  "d": 277,
+  "o": 22
+ },
+ {
+  "town": "Fairlee",
+  "county": "Orange",
+  "r": 263,
+  "d": 285,
+  "o": 19
+ },
+ {
+  "town": "Fayston",
+  "county": "Washington",
+  "r": 384,
+  "d": 423,
+  "o": 19
+ },
+ {
+  "town": "Ferrisburgh",
+  "county": "Addison",
+  "r": 962,
+  "d": 613,
+  "o": 43
+ },
+ {
+  "town": "Fletcher",
+  "county": "Franklin",
+  "r": 428,
+  "d": 261,
+  "o": 13
+ },
+ {
+  "town": "Franklin",
+  "county": "Franklin",
+  "r": 470,
+  "d": 145,
+  "o": 15
+ },
+ {
+  "town": "Georgia",
+  "county": "Franklin",
+  "r": 1729,
+  "d": 640,
+  "o": 46
+ },
+ {
+  "town": "Glover",
+  "county": "Orleans",
+  "r": 389,
+  "d": 168,
+  "o": 36
+ },
+ {
+  "town": "Goshen",
+  "county": "Addison",
+  "r": 53,
+  "d": 66,
+  "o": 6
+ },
+ {
+  "town": "Grafton",
+  "county": "Windham",
+  "r": 236,
+  "d": 144,
+  "o": 14
+ },
+ {
+  "town": "Granby",
+  "county": "Essex",
+  "r": 33,
+  "d": 10,
+  "o": 0
+ },
+ {
+  "town": "Grand Isle",
+  "county": "Grand Isle",
+  "r": 773,
+  "d": 387,
+  "o": 24
+ },
+ {
+  "town": "Granville",
+  "county": "Addison",
+  "r": 61,
+  "d": 82,
+  "o": 3
+ },
+ {
+  "town": "Greensboro",
+  "county": "Orleans",
+  "r": 226,
+  "d": 182,
+  "o": 17
+ },
+ {
+  "town": "Groton",
+  "county": "Caledonia",
+  "r": 345,
+  "d": 123,
+  "o": 22
+ },
+ {
+  "town": "Guildhall",
+  "county": "Essex",
+  "r": 92,
+  "d": 51,
+  "o": 1
+ },
+ {
+  "town": "Guilford",
+  "county": "Windham",
+  "r": 368,
+  "d": 729,
+  "o": 47
+ },
+ {
+  "town": "Halifax",
+  "county": "Windham",
+  "r": 192,
+  "d": 205,
+  "o": 21
+ },
+ {
+  "town": "Hancock",
+  "county": "Addison",
+  "r": 97,
+  "d": 58,
+  "o": 4
+ },
+ {
+  "town": "Hardwick",
+  "county": "Caledonia",
+  "r": 879,
+  "d": 461,
+  "o": 54
+ },
+ {
+  "town": "Hartford",
+  "county": "Windsor",
+  "r": 2151,
+  "d": 2773,
+  "o": 183
+ },
+ {
+  "town": "Hartland",
+  "county": "Windsor",
+  "r": 910,
+  "d": 958,
+  "o": 56
+ },
+ {
+  "town": "Highgate",
+  "county": "Franklin",
+  "r": 1047,
+  "d": 303,
+  "o": 40
+ },
+ {
+  "town": "Hinesburg",
+  "county": "Chittenden",
+  "r": 1246,
+  "d": 1359,
+  "o": 63
+ },
+ {
+  "town": "Holland",
+  "county": "Orleans",
+  "r": 233,
+  "d": 55,
+  "o": 11
+ },
+ {
+  "town": "Hubbardton",
+  "county": "Rutland",
+  "r": 235,
+  "d": 141,
+  "o": 11
+ },
+ {
+  "town": "Huntington",
+  "county": "Chittenden",
+  "r": 503,
+  "d": 702,
+  "o": 32
+ },
+ {
+  "town": "Hyde Park",
+  "county": "Lamoille",
+  "r": 971,
+  "d": 533,
+  "o": 44
+ },
+ {
+  "town": "Ira",
+  "county": "Rutland",
+  "r": 161,
+  "d": 68,
+  "o": 12
+ },
+ {
+  "town": "Irasburg",
+  "county": "Orleans",
+  "r": 445,
+  "d": 109,
+  "o": 10
+ },
+ {
+  "town": "Isle La Motte",
+  "county": "Grand Isle",
+  "r": 204,
+  "d": 92,
+  "o": 10
+ },
+ {
+  "town": "Jamaica",
+  "county": "Windham",
+  "r": 226,
+  "d": 257,
+  "o": 26
+ },
+ {
+  "town": "Jay",
+  "county": "Orleans",
+  "r": 162,
+  "d": 73,
+  "o": 9
+ },
+ {
+  "town": "Jericho",
+  "county": "Chittenden",
+  "r": 1702,
+  "d": 1548,
+  "o": 59
+ },
+ {
+  "town": "Johnson",
+  "county": "Lamoille",
+  "r": 724,
+  "d": 535,
+  "o": 44
+ },
+ {
+  "town": "Killington",
+  "county": "Rutland",
+  "r": 383,
+  "d": 248,
+  "o": 25
+ },
+ {
+  "town": "Kirby",
+  "county": "Caledonia",
+  "r": 162,
+  "d": 91,
+  "o": 9
+ },
+ {
+  "town": "Landgrove",
+  "county": "Bennington",
+  "r": 55,
+  "d": 49,
+  "o": 1
+ },
+ {
+  "town": "Leicester",
+  "county": "Addison",
+  "r": 332,
+  "d": 152,
+  "o": 11
+ },
+ {
+  "town": "Lemington",
+  "county": "Essex",
+  "r": 43,
+  "d": 12,
+  "o": 1
+ },
+ {
+  "town": "Lincoln",
+  "county": "Addison",
+  "r": 330,
+  "d": 430,
+  "o": 26
+ },
+ {
+  "town": "Londonderry",
+  "county": "Windham",
+  "r": 521,
+  "d": 387,
+  "o": 22
+ },
+ {
+  "town": "Lowell",
+  "county": "Orleans",
+  "r": 333,
+  "d": 75,
+  "o": 21
+ },
+ {
+  "town": "Ludlow",
+  "county": "Windsor",
+  "r": 578,
+  "d": 468,
+  "o": 47
+ },
+ {
+  "town": "Lunenburg",
+  "county": "Essex",
+  "r": 403,
+  "d": 121,
+  "o": 26
+ },
+ {
+  "town": "Lyndon",
+  "county": "Caledonia",
+  "r": 1410,
+  "d": 572,
+  "o": 69
+ },
+ {
+  "town": "Maidstone",
+  "county": "Essex",
+  "r": 77,
+  "d": 33,
+  "o": 4
+ },
+ {
+  "town": "Manchester",
+  "county": "Bennington",
+  "r": 1231,
+  "d": 1084,
+  "o": 65
+ },
+ {
+  "town": "Marlboro",
+  "county": "Windham",
+  "r": 138,
+  "d": 411,
+  "o": 18
+ },
+ {
+  "town": "Marshfield",
+  "county": "Washington",
+  "r": 476,
+  "d": 367,
+  "o": 26
+ },
+ {
+  "town": "Mendon",
+  "county": "Rutland",
+  "r": 408,
+  "d": 221,
+  "o": 17
+ },
+ {
+  "town": "Middlebury",
+  "county": "Addison",
+  "r": 1351,
+  "d": 2212,
+  "o": 88
+ },
+ {
+  "town": "Middlesex",
+  "county": "Washington",
+  "r": 515,
+  "d": 582,
+  "o": 25
+ },
+ {
+  "town": "Middletown Springs",
+  "county": "Rutland",
+  "r": 266,
+  "d": 198,
+  "o": 20
+ },
+ {
+  "town": "Milton",
+  "county": "Chittenden",
+  "r": 3493,
+  "d": 1484,
+  "o": 125
+ },
+ {
+  "town": "Monkton",
+  "county": "Addison",
+  "r": 704,
+  "d": 480,
+  "o": 30
+ },
+ {
+  "town": "Montgomery",
+  "county": "Franklin",
+  "r": 339,
+  "d": 267,
+  "o": 38
+ },
+ {
+  "town": "Montpelier",
+  "county": "Washington",
+  "r": 1515,
+  "d": 3172,
+  "o": 95
+ },
+ {
+  "town": "Moretown",
+  "county": "Washington",
+  "r": 551,
+  "d": 462,
+  "o": 26
+ },
+ {
+  "town": "Morgan",
+  "county": "Orleans",
+  "r": 258,
+  "d": 74,
+  "o": 7
+ },
+ {
+  "town": "Morristown",
+  "county": "Lamoille",
+  "r": 1566,
+  "d": 1095,
+  "o": 77
+ },
+ {
+  "town": "Mount Holly",
+  "county": "Rutland",
+  "r": 447,
+  "d": 285,
+  "o": 30
+ },
+ {
+  "town": "Mount Tabor",
+  "county": "Rutland",
+  "r": 62,
+  "d": 31,
+  "o": 1
+ },
+ {
+  "town": "New Haven",
+  "county": "Addison",
+  "r": 664,
+  "d": 398,
+  "o": 26
+ },
+ {
+  "town": "Newark",
+  "county": "Caledonia",
+  "r": 217,
+  "d": 79,
+  "o": 8
+ },
+ {
+  "town": "Newbury",
+  "county": "Orange",
+  "r": 604,
+  "d": 446,
+  "o": 29
+ },
+ {
+  "town": "Newfane",
+  "county": "Windham",
+  "r": 315,
+  "d": 643,
+  "o": 37
+ },
+ {
+  "town": "Newport City",
+  "county": "Orleans",
+  "r": 970,
+  "d": 489,
+  "o": 80
+ },
+ {
+  "town": "Newport Town",
+  "county": "Orleans",
+  "r": 518,
+  "d": 155,
+  "o": 24
+ },
+ {
+  "town": "North Hero",
+  "county": "Grand Isle",
+  "r": 414,
+  "d": 201,
+  "o": 16
+ },
+ {
+  "town": "Northfield",
+  "county": "Washington",
+  "r": 1463,
+  "d": 718,
+  "o": 43
+ },
+ {
+  "town": "Norton",
+  "county": "Essex",
+  "r": 64,
+  "d": 19,
+  "o": 3
+ },
+ {
+  "town": "Norwich",
+  "county": "Windsor",
+  "r": 483,
+  "d": 1750,
+  "o": 64
+ },
+ {
+  "town": "Orange",
+  "county": "Orange",
+  "r": 416,
+  "d": 116,
+  "o": 10
+ },
+ {
+  "town": "Orwell",
+  "county": "Addison",
+  "r": 465,
+  "d": 172,
+  "o": 16
+ },
+ {
+  "town": "Panton",
+  "county": "Addison",
+  "r": 227,
+  "d": 114,
+  "o": 4
+ },
+ {
+  "town": "Pawlet",
+  "county": "Rutland",
+  "r": 413,
+  "d": 316,
+  "o": 22
+ },
+ {
+  "town": "Peacham",
+  "county": "Caledonia",
+  "r": 260,
+  "d": 204,
+  "o": 18
+ },
+ {
+  "town": "Peru",
+  "county": "Bennington",
+  "r": 103,
+  "d": 129,
+  "o": 4
+ },
+ {
+  "town": "Pittsfield",
+  "county": "Rutland",
+  "r": 163,
+  "d": 120,
+  "o": 12
+ },
+ {
+  "town": "Pittsford",
+  "county": "Rutland",
+  "r": 1055,
+  "d": 431,
+  "o": 46
+ },
+ {
+  "town": "Plainfield",
+  "county": "Washington",
+  "r": 278,
+  "d": 383,
+  "o": 16
+ },
+ {
+  "town": "Plymouth",
+  "county": "Windsor",
+  "r": 185,
+  "d": 141,
+  "o": 18
+ },
+ {
+  "town": "Pomfret",
+  "county": "Windsor",
+  "r": 261,
+  "d": 313,
+  "o": 21
+ },
+ {
+  "town": "Poultney",
+  "county": "Rutland",
+  "r": 873,
+  "d": 516,
+  "o": 44
+ },
+ {
+  "town": "Pownal",
+  "county": "Bennington",
+  "r": 785,
+  "d": 742,
+  "o": 79
+ },
+ {
+  "town": "Proctor",
+  "county": "Rutland",
+  "r": 543,
+  "d": 269,
+  "o": 34
+ },
+ {
+  "town": "Putney",
+  "county": "Windham",
+  "r": 292,
+  "d": 950,
+  "o": 53
+ },
+ {
+  "town": "Randolph",
+  "county": "Orange",
+  "r": 1337,
+  "d": 867,
+  "o": 63
+ },
+ {
+  "town": "Reading",
+  "county": "Windsor",
+  "r": 176,
+  "d": 186,
+  "o": 12
+ },
+ {
+  "town": "Readsboro",
+  "county": "Bennington",
+  "r": 193,
+  "d": 159,
+  "o": 24
+ },
+ {
+  "town": "Richford",
+  "county": "Franklin",
+  "r": 555,
+  "d": 252,
+  "o": 27
+ },
+ {
+  "town": "Richmond",
+  "county": "Chittenden",
+  "r": 1173,
+  "d": 1302,
+  "o": 63
+ },
+ {
+  "town": "Ripton",
+  "county": "Addison",
+  "r": 124,
+  "d": 201,
+  "o": 5
+ },
+ {
+  "town": "Rochester",
+  "county": "Windsor",
+  "r": 288,
+  "d": 341,
+  "o": 17
+ },
+ {
+  "town": "Rockingham",
+  "county": "Windham",
+  "r": 809,
+  "d": 1227,
+  "o": 98
+ },
+ {
+  "town": "Roxbury",
+  "county": "Washington",
+  "r": 219,
+  "d": 149,
+  "o": 11
+ },
+ {
+  "town": "Royalton",
+  "county": "Windsor",
+  "r": 711,
+  "d": 580,
+  "o": 38
+ },
+ {
+  "town": "Rupert",
+  "county": "Bennington",
+  "r": 204,
+  "d": 175,
+  "o": 14
+ },
+ {
+  "town": "Rutland City",
+  "county": "Rutland",
+  "r": 4190,
+  "d": 2611,
+  "o": 268
+ },
+ {
+  "town": "Rutland Town",
+  "county": "Rutland",
+  "r": 1519,
+  "d": 732,
+  "o": 44
+ },
+ {
+  "town": "Ryegate",
+  "county": "Caledonia",
+  "r": 376,
+  "d": 169,
+  "o": 15
+ },
+ {
+  "town": "Salisbury",
+  "county": "Addison",
+  "r": 341,
+  "d": 198,
+  "o": 17
+ },
+ {
+  "town": "Sandgate",
+  "county": "Bennington",
+  "r": 115,
+  "d": 96,
+  "o": 6
+ },
+ {
+  "town": "Searsburg",
+  "county": "Bennington",
+  "r": 38,
+  "d": 14,
+  "o": 6
+ },
+ {
+  "town": "Shaftsbury",
+  "county": "Bennington",
+  "r": 944,
+  "d": 817,
+  "o": 51
+ },
+ {
+  "town": "Sharon",
+  "county": "Windsor",
+  "r": 376,
+  "d": 358,
+  "o": 27
+ },
+ {
+  "town": "Sheffield",
+  "county": "Caledonia",
+  "r": 210,
+  "d": 80,
+  "o": 18
+ },
+ {
+  "town": "Shelburne",
+  "county": "Chittenden",
+  "r": 2177,
+  "d": 2540,
+  "o": 76
+ },
+ {
+  "town": "Sheldon",
+  "county": "Franklin",
+  "r": 617,
+  "d": 187,
+  "o": 13
+ },
+ {
+  "town": "Shoreham",
+  "county": "Addison",
+  "r": 373,
+  "d": 262,
+  "o": 15
+ },
+ {
+  "town": "Shrewsbury",
+  "county": "Rutland",
+  "r": 356,
+  "d": 279,
+  "o": 29
+ },
+ {
+  "town": "South Burlington",
+  "county": "Chittenden",
+  "r": 4609,
+  "d": 5586,
+  "o": 190
+ },
+ {
+  "town": "South Hero",
+  "county": "Grand Isle",
+  "r": 641,
+  "d": 464,
+  "o": 22
+ },
+ {
+  "town": "Springfield",
+  "county": "Windsor",
+  "r": 2161,
+  "d": 1578,
+  "o": 185
+ },
+ {
+  "town": "St. Albans City",
+  "county": "Franklin",
+  "r": 1469,
+  "d": 976,
+  "o": 66
+ },
+ {
+  "town": "St. Albans Town",
+  "county": "Franklin",
+  "r": 2154,
+  "d": 903,
+  "o": 72
+ },
+ {
+  "town": "St. George",
+  "county": "Chittenden",
+  "r": 207,
+  "d": 134,
+  "o": 10
+ },
+ {
+  "town": "St. Johnsbury",
+  "county": "Caledonia",
+  "r": 1869,
+  "d": 1034,
+  "o": 112
+ },
+ {
+  "town": "Stamford",
+  "county": "Bennington",
+  "r": 251,
+  "d": 192,
+  "o": 21
+ },
+ {
+  "town": "Stannard",
+  "county": "Caledonia",
+  "r": 49,
+  "d": 45,
+  "o": 8
+ },
+ {
+  "town": "Starksboro",
+  "county": "Addison",
+  "r": 459,
+  "d": 445,
+  "o": 24
+ },
+ {
+  "town": "Stockbridge",
+  "county": "Windsor",
+  "r": 228,
+  "d": 171,
+  "o": 24
+ },
+ {
+  "town": "Stowe",
+  "county": "Lamoille",
+  "r": 1372,
+  "d": 1421,
+  "o": 3
+ },
+ {
+  "town": "Strafford",
+  "county": "Orange",
+  "r": 233,
+  "d": 439,
+  "o": 18
+ },
+ {
+  "town": "Stratton",
+  "county": "Windham",
+  "r": 77,
+  "d": 45,
+  "o": 5
+ },
+ {
+  "town": "Sudbury",
+  "county": "Rutland",
+  "r": 194,
+  "d": 118,
+  "o": 10
+ },
+ {
+  "town": "Sunderland",
+  "county": "Bennington",
+  "r": 292,
+  "d": 214,
+  "o": 12
+ },
+ {
+  "town": "Sutton",
+  "county": "Caledonia",
+  "r": 338,
+  "d": 108,
+  "o": 15
+ },
+ {
+  "town": "Swanton",
+  "county": "Franklin",
+  "r": 1867,
+  "d": 730,
+  "o": 84
+ },
+ {
+  "town": "Thetford",
+  "county": "Orange",
+  "r": 582,
+  "d": 1011,
+  "o": 39
+ },
+ {
+  "town": "Tinmouth",
+  "county": "Rutland",
+  "r": 161,
+  "d": 125,
+  "o": 12
+ },
+ {
+  "town": "Topsham",
+  "county": "Orange",
+  "r": 418,
+  "d": 146,
+  "o": 15
+ },
+ {
+  "town": "Townshend",
+  "county": "Windham",
+  "r": 268,
+  "d": 348,
+  "o": 58
+ },
+ {
+  "town": "Troy",
+  "county": "Orleans",
+  "r": 447,
+  "d": 180,
+  "o": 24
+ },
+ {
+  "town": "Tunbridge",
+  "county": "Orange",
+  "r": 408,
+  "d": 286,
+  "o": 17
+ },
+ {
+  "town": "Underhill",
+  "county": "Chittenden",
+  "r": 990,
+  "d": 936,
+  "o": 37
+ },
+ {
+  "town": "Vergennes",
+  "county": "Addison",
+  "r": 660,
+  "d": 543,
+  "o": 35
+ },
+ {
+  "town": "Vernon",
+  "county": "Windham",
+  "r": 673,
+  "d": 387,
+  "o": 50
+ },
+ {
+  "town": "Vershire",
+  "county": "Orange",
+  "r": 187,
+  "d": 165,
+  "o": 9
+ },
+ {
+  "town": "Victory",
+  "county": "Essex",
+  "r": 48,
+  "d": 16,
+  "o": 1
+ },
+ {
+  "town": "Waitsfield",
+  "county": "Washington",
+  "r": 527,
+  "d": 573,
+  "o": 26
+ },
+ {
+  "town": "Walden",
+  "county": "Caledonia",
+  "r": 320,
+  "d": 185,
+  "o": 15
+ },
+ {
+  "town": "Wallingford",
+  "county": "Rutland",
+  "r": 670,
+  "d": 399,
+  "o": 42
+ },
+ {
+  "town": "Waltham",
+  "county": "Addison",
+  "r": 165,
+  "d": 108,
+  "o": 10
+ },
+ {
+  "town": "Wardsboro",
+  "county": "Windham",
+  "r": 186,
+  "d": 189,
+  "o": 18
+ },
+ {
+  "town": "Warren",
+  "county": "Washington",
+  "r": 438,
+  "d": 611,
+  "o": 31
+ },
+ {
+  "town": "Washington",
+  "county": "Orange",
+  "r": 405,
+  "d": 133,
+  "o": 13
+ },
+ {
+  "town": "Waterbury",
+  "county": "Washington",
+  "r": 1552,
+  "d": 1465,
+  "o": 50
+ },
+ {
+  "town": "Waterford",
+  "county": "Caledonia",
+  "r": 534,
+  "d": 183,
+  "o": 22
+ },
+ {
+  "town": "Waterville",
+  "county": "Lamoille",
+  "r": 246,
+  "d": 120,
+  "o": 10
+ },
+ {
+  "town": "Weathersfield",
+  "county": "Windsor",
+  "r": 904,
+  "d": 610,
+  "o": 54
+ },
+ {
+  "town": "Wells",
+  "county": "Rutland",
+  "r": 377,
+  "d": 181,
+  "o": 19
+ },
+ {
+  "town": "West Fairlee",
+  "county": "Orange",
+  "r": 160,
+  "d": 127,
+  "o": 8
+ },
+ {
+  "town": "West Haven",
+  "county": "Rutland",
+  "r": 100,
+  "d": 35,
+  "o": 2
+ },
+ {
+  "town": "West Rutland",
+  "county": "Rutland",
+  "r": 727,
+  "d": 277,
+  "o": 39
+ },
+ {
+  "town": "West Windsor",
+  "county": "Windsor",
+  "r": 343,
+  "d": 343,
+  "o": 21
+ },
+ {
+  "town": "Westfield",
+  "county": "Orleans",
+  "r": 194,
+  "d": 98,
+  "o": 11
+ },
+ {
+  "town": "Westford",
+  "county": "Chittenden",
+  "r": 732,
+  "d": 494,
+  "o": 35
+ },
+ {
+  "town": "Westminster",
+  "county": "Windham",
+  "r": 501,
+  "d": 958,
+  "o": 75
+ },
+ {
+  "town": "Westmore",
+  "county": "Orleans",
+  "r": 147,
+  "d": 62,
+  "o": 11
+ },
+ {
+  "town": "Weston",
+  "county": "Windsor",
+  "r": 183,
+  "d": 210,
+  "o": 22
+ },
+ {
+  "town": "Weybridge",
+  "county": "Addison",
+  "r": 217,
+  "d": 338,
+  "o": 7
+ },
+ {
+  "town": "Wheelock",
+  "county": "Caledonia",
+  "r": 256,
+  "d": 126,
+  "o": 15
+ },
+ {
+  "town": "Whiting",
+  "county": "Addison",
+  "r": 127,
+  "d": 63,
+  "o": 9
+ },
+ {
+  "town": "Whitingham",
+  "county": "Windham",
+  "r": 360,
+  "d": 253,
+  "o": 27
+ },
+ {
+  "town": "Williamstown",
+  "county": "Orange",
+  "r": 1164,
+  "d": 361,
+  "o": 31
+ },
+ {
+  "town": "Williston",
+  "county": "Chittenden",
+  "r": 3153,
+  "d": 2371,
+  "o": 95
+ },
+ {
+  "town": "Wilmington",
+  "county": "Windham",
+  "r": 470,
+  "d": 530,
+  "o": 42
+ },
+ {
+  "town": "Windham",
+  "county": "Windham",
+  "r": 195,
+  "d": 75,
+  "o": 12
+ },
+ {
+  "town": "Windsor",
+  "county": "Windham",
+  "r": 734,
+  "d": 858,
+  "o": 92
+ },
+ {
+  "town": "Winhall",
+  "county": "Bennington",
+  "r": 281,
+  "d": 220,
+  "o": 17
+ },
+ {
+  "town": "Winooski",
+  "county": "Chittenden",
+  "r": 1057,
+  "d": 1885,
+  "o": 92
+ },
+ {
+  "town": "Wolcott",
+  "county": "Lamoille",
+  "r": 477,
+  "d": 295,
+  "o": 29
+ },
+ {
+  "town": "Woodbury",
+  "county": "Washington",
+  "r": 305,
+  "d": 204,
+  "o": 23
+ },
+ {
+  "town": "Woodford",
+  "county": "Bennington",
+  "r": 85,
+  "d": 83,
+  "o": 10
+ },
+ {
+  "town": "Woodstock",
+  "county": "Windsor",
+  "r": 792,
+  "d": 1048,
+  "o": 54
+ },
+ {
+  "town": "Worcester",
+  "county": "Washington",
+  "r": 277,
+  "d": 305,
+  "o": 15
+ }
+]

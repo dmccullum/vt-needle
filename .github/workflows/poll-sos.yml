@@ -1,0 +1,31 @@
+name: Poll Vermont SOS results
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Keep-alive: if the long-running poller ends or GitHub kills it, a new one starts.
+    # The concurrency group means only one runs at a time.
+    - cron: "*/20 * * * *"
+
+concurrency:
+  group: poll-sos
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure git
+        run: |
+          git config user.name "vt-needle bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Poll SOS every 2 minutes, commit on change
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/poll_sos.py --loop --minutes 340 --every 120 --commit

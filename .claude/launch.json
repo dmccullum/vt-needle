@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vt-needle",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["fetch_ap.py", "--no-fetch"],
+      "port": 8642
+    }
+  ]
+}
