@@ -40,8 +40,6 @@
   @keyframes pulse { 50% { opacity: .25; } }
   h1 { font: 400 clamp(30px, 6vw, 44px)/1.08 var(--serif); letter-spacing: -.01em; margin: 14px 0 6px; }
   .stamp { font-size: var(--t-meta); color: var(--muted); margin-bottom: 20px; }
-  .headline-result { font: 600 var(--t-card)/1.4 var(--display); margin: 0 0 16px; }
-  .headline-result b { font-weight: 700; } .headline-result b.r { color: var(--rep); } .headline-result b.d { color: var(--dem); }
 
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-card); }
   .needles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -50,18 +48,9 @@
   .gauge h3 { font: 700 var(--t-label) var(--display); letter-spacing: .1em; text-transform: uppercase; text-align: center; margin: 0 0 6px; color: var(--muted); }
   .gauge svg { width: 100%; height: auto; display: block; overflow: visible; }
   .gauge .big { text-align: center; font: 700 28px/1.1 var(--display); letter-spacing: -.015em; font-variant-numeric: tabular-nums; margin-top: 4px; }
-  .gauge .sub { margin: 10px auto 0; max-width: 300px; }
-  .moe-track { position: relative; height: 14px; border-radius: 7px; background: var(--panel2); }
-  .moe-track i { position: absolute; top: 0; bottom: 0; display: block; }
-  .moe-90 { background: color-mix(in srgb, var(--c) 22%, transparent); border-radius: 7px; }
-  .moe-50 { top: 3px !important; bottom: 3px !important; background: color-mix(in srgb, var(--c) 55%, transparent); border-radius: 4px; }
-  .moe-dot { width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--panel); }
-  .moe-even { width: 1px; top: -4px !important; bottom: -4px !important; background: var(--line-strong); }
-  .moe-even b { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font: 600 10px var(--display); color: var(--muted); }
-  .moe-ends { position: relative; height: 18px; margin-top: 4px; font: 700 var(--t-hint)/18px var(--display); font-variant-numeric: tabular-nums; color: var(--ink2); }
-  .moe-ends span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
-  .moe-cap { text-align: center; margin-top: 2px; font: 700 var(--t-label) var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-  .moe-cap span { margin: 0 4px; }
+  .gauge .sub { text-align: center; margin-top: 6px; font: 600 var(--t-label) var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-variant-numeric: tabular-nums; }
+  svg text.lab-r { fill: var(--rep); font-weight: 600; } svg text.lab-d { fill: var(--dem); font-weight: 600; }
+  svg text.range-label { font: 500 10px var(--display); letter-spacing: .02em; fill: var(--muted); }
   .cands { display: flex; justify-content: space-between; font: 700 var(--t-meta) var(--display); margin: -2px 10% 0; }
   .cands .d { color: var(--dem); } .cands .r { color: var(--rep); }
   svg text { fill: var(--muted); font: 500 11px var(--display); }
@@ -136,7 +125,6 @@
   <h1>Who will win Vermont governor?</h1>
   <div class="stamp" id="stamp">Waiting for results</div>
 
-  <p class="headline-result" id="headline">—</p>
 
   <div class="needles">
     <div class="gauge card">
@@ -144,6 +132,7 @@
       <svg id="gProb" viewBox="-50 -14 440 206" role="img" aria-label="Chance of winning needle"></svg>
       <div class="cands"><span class="d" id="nameD1">Janoo</span><span class="r" id="nameR1">Scott</span></div>
       <div class="big" id="probBig">—</div>
+      <div class="sub" id="probSub"></div>
     </div>
     <div class="gauge card">
       <h3>Estimated margin</h3>
@@ -188,8 +177,8 @@
   </details>
 </main>
 
-<script src="data/baseline.js?v=7"></script>
-<script src="model.js?v=7"></script>
-<script src="app.js?v=7"></script>
+<script src="data/baseline.js?v=9"></script>
+<script src="model.js?v=9"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>

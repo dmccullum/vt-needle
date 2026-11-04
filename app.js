@@ -22,52 +22,90 @@
   }
   const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent && parent.appendChild(e); return e; };
 
-  function drawGauge(svg, bands, labels) {
-    svg.innerHTML = "";
-    bands.forEach((b) => el("path", { d: arc(b.a0, b.a1, R0, R1), fill: b.fill, "fill-opacity": b.op, stroke: css("--bg"), "stroke-width": 1.5 }, svg));
-    labels.forEach((l) => {
-      const [x, y] = pt(l.a, R1 + 10);
-      const t = el("text", { x, y, "text-anchor": l.a < -5 ? "end" : l.a > 5 ? "start" : "middle", "dominant-baseline": l.a === 0 ? "auto" : "middle" }, svg);
-      t.textContent = l.t;
-      const [tx0, ty0] = pt(l.a, R1 - 1), [tx1, ty1] = pt(l.a, R1 + 5);
-      el("line", { x1: tx0, y1: ty0, x2: tx1, y2: ty1, stroke: css("--faint") }, svg);
-    });
-    const g = el("g", {}, svg);
-    el("path", { d: `M${CX - 4},${CY} L${CX},${CY - R1 + 6} L${CX + 4},${CY} Z`, fill: css("--needle") }, g);
-    el("circle", { cx: CX, cy: CY, r: 8, fill: css("--needle") }, g);
-    el("circle", { cx: CX, cy: CY, r: 3, fill: css("--bg") }, g);
+  // Thick tapered needle in the leader's color, drawn pointing straight up; rotated by setAngle.
+  function needle(svg, len) {
+    const g = el("g", { class: "needle" }, svg);
+    el("path", { d: `M${CX - 7},${CY} L${CX - 1.2},${CY - len} L${CX + 1.2},${CY - len} L${CX + 7},${CY} Z` }, g);
+    el("circle", { cx: CX, cy: CY, r: 11 }, g);
     return g;
   }
 
-  function buildGauges() {
+  function drawProbGauge(svg) {
+    svg.innerHTML = "";
     const D = css("--dem"), Rr = css("--rep"), F = css("--faint");
     const P = (p) => (p - 0.5) * 180;
-    gP.node = drawGauge($("gProb"), [
-      { a0: P(0), a1: P(0.05), fill: D, op: 1 }, { a0: P(0.05), a1: P(0.25), fill: D, op: 0.65 }, { a0: P(0.25), a1: P(0.4), fill: D, op: 0.3 },
-      { a0: P(0.4), a1: P(0.6), fill: F, op: 0.25 },
-      { a0: P(0.6), a1: P(0.75), fill: Rr, op: 0.3 }, { a0: P(0.75), a1: P(0.95), fill: Rr, op: 0.65 }, { a0: P(0.95), a1: P(1), fill: Rr, op: 1 },
-    ], [
-      { a: P(0.02), t: "Very likely" }, { a: P(0.15), t: "Likely" }, { a: P(0.33), t: "Lean" }, { a: 0, t: "Toss-up" },
-      { a: P(0.67), t: "Lean" }, { a: P(0.85), t: "Likely" }, { a: P(0.98), t: "Very likely" },
-    ]);
-    const Mg = (m) => (Math.max(-MRANGE, Math.min(MRANGE, m)) / MRANGE) * 90;
-    gM.node = drawGauge($("gMargin"), [
-      { a0: Mg(-60), a1: Mg(-30), fill: D, op: 1 }, { a0: Mg(-30), a1: Mg(-10), fill: D, op: 0.6 }, { a0: Mg(-10), a1: Mg(0), fill: D, op: 0.28 },
-      { a0: Mg(0), a1: Mg(10), fill: Rr, op: 0.28 }, { a0: Mg(10), a1: Mg(30), fill: Rr, op: 0.6 }, { a0: Mg(30), a1: Mg(60), fill: Rr, op: 1 },
-    ], [
-      { a: Mg(-60), t: "+60" }, { a: Mg(-30), t: "+30" }, { a: Mg(-10), t: "+10" }, { a: 0, t: "Even" },
-      { a: Mg(10), t: "+10" }, { a: Mg(30), t: "+30" }, { a: Mg(60), t: "+60" },
-    ]);
-    setAngle(gP); setAngle(gM);
-    if (out) drawRange();
+    [[0, .05, D, .9], [.05, .25, D, .5], [.25, .4, D, .2], [.4, .6, F, .15], [.6, .75, Rr, .2], [.75, .95, Rr, .5], [.95, 1, Rr, .9]]
+      .forEach(([a0, a1, fill, op]) => el("path", { d: arc(P(a0), P(a1), R0, R1), fill, "fill-opacity": op, stroke: css("--panel"), "stroke-width": 2 }, svg));
+    [[.02, "Very likely"], [.15, "Likely"], [.33, "Lean"], [.5, "Toss-up"], [.67, "Lean"], [.85, "Likely"], [.98, "Very likely"]].forEach(([p, t]) => {
+      const a = P(p), [x, y] = pt(a, R1 + 10);
+      const tx = el("text", { x, y, "text-anchor": a < -5 ? "end" : a > 5 ? "start" : "middle", "dominant-baseline": a === 0 ? "auto" : "middle" }, svg);
+      tx.textContent = t;
+    });
+    el("line", { x1: CX - R1 - 6, x2: CX + R1 + 6, y1: CY, y2: CY, stroke: css("--line-strong") }, svg);
+    gP.node = needle(svg, R1 - 8);
   }
-  const MRANGE = 60;
-  const mAng = (m) => (Math.max(-MRANGE, Math.min(MRANGE, m)) / MRANGE) * 90;
+
+  // Margin dial, NYT-style: zoomed to the race, plain ticks, the range of estimates as wedges
+  // fanning from the pivot (light = 90% of outcomes, dark = middle 50%), a line at Even.
+  const SCALES = [[10, 2, 1], [15, 3, 1], [20, 4, 2], [30, 10, 5], [40, 10, 5], [60, 20, 5]]; // [max, label step, tick step]
+  let mScale = SCALES[5];
+  const mAng = (m) => (Math.max(-mScale[0], Math.min(mScale[0], m)) / mScale[0]) * 90;
+  function pickScale(m) {
+    const need = 1.15 * Math.max(Math.abs(m.p05), Math.abs(m.p95), 1);
+    const fit = SCALES.find((s) => s[0] >= need) || SCALES[SCALES.length - 1];
+    // only change when the range no longer fits, or would fit a scale less than half as wide
+    if (fit[0] > mScale[0] || fit[0] * 2 <= mScale[0]) { mScale = fit; return true; }
+    return false;
+  }
+  const wedge = (a0, a1, r) => { const [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r); return `M${CX},${CY}L${x0},${y0}A${r},${r} 0 0 1 ${x1},${y1}Z`; };
+  const HUB = 56;
+  function drawMarginGauge(svg) {
+    svg.innerHTML = "";
+    const [S, lab, tk] = mScale, F = css("--faint"), INK = css("--ink");
+    gM.w90 = el("path", { "fill-opacity": 0.22 }, svg);
+    gM.w50 = el("path", { "fill-opacity": 0.4 }, svg);
+    el("path", { d: `M${CX - R1},${CY}A${R1},${R1} 0 0 1 ${CX + R1},${CY}`, fill: "none", stroke: css("--line-strong") }, svg);
+    for (let v = -S; v <= S + 1e-9; v += tk) {
+      const a = mAng(v), major = Math.abs(v / lab - Math.round(v / lab)) < 1e-9;
+      const [x0, y0] = pt(a, R1), [x1, y1] = pt(a, R1 - (major ? 9 : 5));
+      el("line", { x1: x0, y1: y0, x2: x1, y2: y1, stroke: F }, svg);
+      if (major && Math.abs(v) > 1e-9) {
+        const [x, y] = pt(a, R1 - 22);
+        const t = el("text", { x, y, "text-anchor": "middle", "dominant-baseline": "middle", class: v > 0 ? "lab-r" : "lab-d" }, svg);
+        t.textContent = "+" + Math.abs(v);
+      }
+    }
+    const [zx, zy] = pt(0, R1);
+    el("line", { x1: CX, y1: CY - HUB, x2: zx, y2: zy - 4, stroke: INK, "stroke-width": 1.5 }, svg);
+    const ev = el("text", { x: zx, y: zy - 10, "text-anchor": "middle" }, svg); ev.textContent = "Even";
+    el("path", { d: `M${CX - HUB},${CY}A${HUB},${HUB} 0 0 1 ${CX + HUB},${CY}Z`, fill: css("--panel"), stroke: css("--line-strong") }, svg);
+    el("line", { x1: CX - R1 - 6, x2: CX + R1 + 6, y1: CY, y2: CY, stroke: css("--line-strong") }, svg);
+    // "Range of estimates" bracket + curved label over the 90% wedge
+    gM.bracket = el("path", { fill: "none", stroke: F, "stroke-width": 1.2 }, svg);
+    el("path", { id: "rangeLabelPath", d: "", fill: "none" }, svg);
+    const t = el("text", { class: "range-label" }, svg);
+    const tp = el("textPath", { href: "#rangeLabelPath", startOffset: "50%", "text-anchor": "middle" }, t);
+    tp.textContent = "Range of estimates";
+    gM.node = needle(svg, R1 - 8);
+    drawRange();
+  }
   function drawRange() {
-    if (!gM.range || !out) return;
-    const a0 = mAng(out.margin.p05), a1 = Math.max(a0 + 0.8, mAng(out.margin.p95));
-    gM.range.setAttribute("d", arc(a0, a1, R0 - 14, R0 - 5));
-    gM.range.setAttribute("fill", css(out.margin.med > 0 ? "--rep" : "--dem"));
+    if (!out || !gM.w90) return;
+    const m = out.margin, col = css(m.med > 0 ? "--rep" : "--dem");
+    const a05 = mAng(m.p05), a95 = Math.max(a05 + 0.6, mAng(m.p95)), a25 = mAng(m.p25), a75 = Math.max(a25 + 0.4, mAng(m.p75));
+    gM.w90.setAttribute("d", wedge(a05, a95, R1)); gM.w90.setAttribute("fill", col);
+    gM.w50.setAttribute("d", wedge(a25, a75, R1)); gM.w50.setAttribute("fill", col);
+    const rb = R1 + 6, [bx0, by0] = pt(a05, rb), [bx1, by1] = pt(a95, rb);
+    gM.bracket.setAttribute("d", `M${bx0},${by0}A${rb},${rb} 0 0 1 ${bx1},${by1}`);
+    const mid = (a05 + a95) / 2, rl = R1 + 11, [lx0, ly0] = pt(mid - 40, rl), [lx1, ly1] = pt(mid + 40, rl);
+    document.getElementById("rangeLabelPath").setAttribute("d", `M${lx0},${ly0}A${rl},${rl} 0 0 1 ${lx1},${ly1}`);
+    for (const g of [gP, gM]) if (g.node) g.node.setAttribute("fill", g === gP ? css(out.pWin >= 0.5 ? "--rep" : "--dem") : col);
+  }
+
+  function buildGauges() {
+    drawProbGauge($("gProb"));
+    drawMarginGauge($("gMargin"));
+    setAngle(gP); setAngle(gM);
   }
   const gP = { node: null, cur: 0, target: 0 };
   const gM = { node: null, cur: 0, target: 0 };
@@ -87,7 +125,7 @@
           mj = out.margin.p25 + Math.random() * (out.margin.p75 - out.margin.p25);
         }
         gP.target = (pj - 0.5) * 180;
-        gM.target = (Math.max(-MRANGE, Math.min(MRANGE, mj)) / MRANGE) * 90;
+        gM.target = mAng(mj);
       }
       for (const g of [gP, gM]) { g.cur += (g.target - g.cur) * 0.08; setAngle(g); }
     }
@@ -116,43 +154,20 @@
     render(label);
   }
 
-  // Margin-of-error bar: 90% range (light), 50% range (dark), median dot, "Even" tick when in view.
-  // The range comes only from the vote still out, so it narrows as towns report.
-  function renderMoe(m) {
-    const w = m.p95 - m.p05, pad = Math.max(1.5, w * 0.35);
-    const lo = m.p05 - pad, hi = m.p95 + pad;
-    const x = (v) => (((v - lo) / (hi - lo)) * 100).toFixed(2) + "%";
-    const side = m.med > 0 ? "rep" : "dem";
-    const evenTick = lo < 0 && hi > 0 ? `<i class="moe-even" style="left:${x(0)}"><b>Even</b></i>` : "";
-    const fmtE = (v) => fmtM(v, true).replace(" ", "");
-    $("marginSub").innerHTML = `
-      <div class="moe" style="--c:var(--${side})">
-        <div class="moe-track">
-          ${evenTick}
-          <i class="moe-90" style="left:${x(m.p05)};width:calc(${x(m.p95)} - ${x(m.p05)})"></i>
-          <i class="moe-50" style="left:${x(m.p25)};width:calc(${x(m.p75)} - ${x(m.p25)})"></i>
-          <i class="moe-dot" style="left:${x(m.med)}"></i>
-        </div>
-        <div class="moe-ends"><span style="left:${x(m.p05)}">${fmtE(m.p05)}</span><span style="left:${x(m.p95)}">${fmtE(m.p95)}</span></div>
-        <div class="moe-cap">90% range <span>·</span> ±${(w / 2).toFixed(1)}</div>
-      </div>`;
-    $("marginSub").title = `Middle 50% of outcomes: ${fmtE(m.p25)} to ${fmtE(m.p75)}. 90%: ${fmtE(m.p05)} to ${fmtE(m.p95)}.`;
-  }
-
   let lastLabel = "";
   function render(label) {
     const o = out, p = o.pWin;
-    $("probBig").innerHTML = p >= 0.5 ? `<span style="color:var(--rep)">${pct(p)} ${last(cfg.rName)}</span>` : `<span style="color:var(--dem)">${pct(1 - p)} ${last(cfg.dName)}</span>`;
-    $("marginBig").innerHTML = `<span class="${cls(o.margin.med)}" style="color:var(--${o.margin.med > 0 ? "rep" : "dem"})">${fmtM(o.margin.med)}</span>`;
-    renderMoe(o.margin);
+    // NYT-style captions: verdict / chance, and margin / range of estimates
+    const lead = p >= 0.5 ? last(cfg.rName) : last(cfg.dName), pv = Math.max(p, 1 - p), pc = p >= 0.5 ? "rep" : "dem";
+    const word = pv >= 0.95 ? "Very likely" : pv >= 0.75 ? "Likely" : pv >= 0.6 ? "Leans" : null;
+    $("probBig").innerHTML = word ? `<span style="color:var(--${pc})">${word} ${lead}</span>` : "Toss-up";
+    $("probSub").textContent = `${pv >= 0.95 ? ">95%" : Math.round(pv * 100) + "%"} chance of winning`;
+    $("marginBig").innerHTML = `<span style="color:var(--${o.margin.med > 0 ? "rep" : "dem"})">${fmtM(o.margin.med)}</span>`;
+    $("marginSub").textContent = `${fmtM(o.margin.p05)} to ${fmtM(o.margin.p95)}`;
+    if (pickScale(o.margin)) drawMarginGauge($("gMargin")), setAngle(gM);
     drawRange();
 
-    const leader = p >= 0.5 ? cfg.rName : cfg.dName, lc = p >= 0.5 ? "r" : "d", d = describe(p);
-    let h;
-    const verdict = { "very likely": "very likely to win", likely: "likely to win", "leaning toward": "leans ahead" }[d];
-    if (!o.counted.total) h = `Pre-election: <b class="${lc}">${leader}</b> ${verdict || "even"}.`;
-    else h = verdict ? `<b class="${lc}">${leader}</b> ${verdict}` : "Toss-up";
-    $("headline").innerHTML = h;
+
 
     $("sPct").textContent = pct(Math.min(1, o.counted.pctIn));
     $("sBar").style.width = Math.min(100, o.counted.pctIn * 100) + "%";
