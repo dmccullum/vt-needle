@@ -4,7 +4,7 @@
     {
       "name": "vt-needle",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["fetch_ap.py", "--no-fetch"],
+      "runtimeArgs": ["-m", "http.server", "8642"],
       "port": 8642
     }
   ]

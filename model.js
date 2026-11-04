@@ -280,39 +280,16 @@
     return "o";
   }
 
-  // AP Elections API v2 JSON (level=ru). Returns { results, unmatched, raceName, apState }
-  function parseAP(json, model, cfg) {
-    const races = json.races || (json.reportingUnits ? [json] : []);
-    let race = races.find((x) => x.officeID === "G" && (x.raceTypeID || "G") === "G") || races.find((x) => x.officeID === "G") || races[0];
-    if (!race) throw new Error("No races found in AP JSON");
-    const acc = makeAcc(model);
-    let apState = null;
-    for (const ru of race.reportingUnits || []) {
-      const tally = { r: 0, d: 0, o: 0 };
-      let winner = null;
-      for (const cand of ru.candidates || []) {
-        const k = classify(cand, cfg);
-        tally[k] += +cand.voteCount || 0;
-        if (cand.winner === "X") winner = k;
-      }
-      if (ru.level === "state") { apState = { ...tally, winner, eevp: ru.eevp, pr: ru.precinctsReporting, pt: ru.precinctsTotal }; continue; }
-      let frac = ru.eevp != null ? ru.eevp / 100 : ru.precinctsTotal ? ru.precinctsReporting / ru.precinctsTotal : 1;
-      if (tally.r + tally.d + tally.o > 0 && !(frac > 0)) frac = 1; // votes but nothing "reporting": treat as complete
-      acc.add(ru.reportingunitName || ru.reportingUnitName || ru.name, tally, frac);
-    }
-    return { ...acc.finish(), raceName: race.officeName || "Governor", apState };
-  }
-
   // Vermont Secretary of State election-night feed (static.electionresults.vermont.gov).
-  // Accepts the raw statewide file ({d:[{o:[...]}]}) or the trimmed file live.py writes
-  // ({source:"vt-sos", gov:{...}}). A town can have several rows (one per House district);
+  // Accepts the compact snapshot scripts/poll_sos.py writes, the raw statewide file
+  // ({d:[{o:[...]}]}), or {gov:{...}} (the governor office from that file). A town can have several rows (one per House district);
   // distReported "k/n" says how many of its districts are in.
   function parseSOS(json, model, cfg) {
     // Compact snapshot from scripts/poll_sos.py: towns = [[name, scott, janoo, other, k, n], ...]
     if (Array.isArray(json.towns)) {
       const acc = makeAcc(model);
       for (const [name, r, d, o, k, n] of json.towns) acc.add(name, { r, d, o }, n > 0 ? (k > 0 ? k / n : 0.5) : 1);
-      return { ...acc.finish(), apState: null, lastUpdated: json.sosUpdated || null, townsReporting: json.townsReporting || null };
+      return { ...acc.finish(), lastUpdated: json.sosUpdated || null, townsReporting: json.townsReporting || null };
     }
     let gov = json.gov;
     if (!gov) for (const blk of json.d || []) for (const o of blk.o || []) if (/^GOVERNOR$/i.test(o.on)) gov = o;
@@ -332,23 +309,7 @@
       const frac = e.n > 0 ? (e.k > 0 ? e.k / e.n : 0.5) : 1;
       acc.add(name, { r: e.r, d: e.d, o: e.o }, frac);
     }
-    return { ...acc.finish(), apState: null, lastUpdated: json.lastUpdated || null, townsReporting: json.townsReporting || null };
-  }
-
-  // CSV: town,scott,janoo,other[,pct_reporting]  (header row required; columns matched by name)
-  function parseCSV(text, model, cfg) {
-    const lines = text.trim().split(/\r?\n/).map((l) => l.split(",").map((s) => s.trim()));
-    const h = lines.shift().map((s) => s.toLowerCase());
-    const col = (re) => h.findIndex((x) => re.test(x));
-    const ti = col(/town|unit|name/), ri = col(new RegExp(cfg.rLast.toLowerCase() + "|^r$|rep")),
-      di = col(new RegExp(cfg.dLast.toLowerCase() + "|^d$|dem")), oi = col(/other|^o$/), fi = col(/pct|frac|eevp|report/);
-    if (ti < 0 || ri < 0 || di < 0) throw new Error("CSV needs town, " + cfg.rLast + ", " + cfg.dLast + " columns");
-    const acc = makeAcc(model);
-    for (const row of lines) {
-      let f = fi >= 0 ? parseFloat(row[fi]) : 1; if (f > 1) f /= 100; if (!(f > 0)) f = 1;
-      acc.add(row[ti], { r: +row[ri] || 0, d: +row[di] || 0, o: oi >= 0 ? +row[oi] || 0 : 0 }, f);
-    }
-    return acc.finish();
+    return { ...acc.finish(), lastUpdated: json.lastUpdated || null, townsReporting: json.townsReporting || null };
   }
 
   // Places reported separately now but combined in the baseline.
@@ -440,5 +401,5 @@
     return { steps, finalMargin: (100 * (fr - fd)) / (fr + fd + fo) };
   }
 
-  root.VTModel = { build, run, parseAP, parseSOS, parseCSV, demoNight, DEFAULT_PRIOR, SIG, norm };
+  root.VTModel = { build, run, parseSOS, demoNight, DEFAULT_PRIOR, SIG, norm };
 })(typeof window !== "undefined" ? window : globalThis);

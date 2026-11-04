@@ -1,7 +1,3 @@
-results/latest.json
-results/latest.json.tmp
-results/history/
-results/.poller.lock
 live/*.tmp
 __pycache__/
 .DS_Store

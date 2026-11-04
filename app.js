@@ -1,7 +1,7 @@
 (function () {
   "use strict";
   const M = window.VTModel;
-  const $ = (id) => document.getElementById(id) || document.createElement("input");
+  const $ = (id) => document.getElementById(id);
   const NS = "http://www.w3.org/2000/svg";
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
@@ -11,7 +11,6 @@
   let results = new Map();
   let out = null;
   let history = [];
-  let apCall = null;
 
   // ---------- Gauges ----------
   const CX = 170, CY = 178, R1 = 165, R0 = 108;
@@ -82,7 +81,7 @@
         lastJ = ts;
         const p = out.pWin;
         let pj = p, mj = out.margin.med;
-        if (cfg.jitter && !apCall) {
+        if (cfg.jitter) {
           const sd = Math.sqrt((p * (1 - p)) / 30);
           pj = Math.max(0, Math.min(1, p + sd * randn()));
           mj = out.margin.p25 + Math.random() * (out.margin.p75 - out.margin.p25);
@@ -140,6 +139,7 @@
     $("marginSub").title = `Middle 50% of outcomes: ${fmtE(m.p25)} to ${fmtE(m.p75)}. 90%: ${fmtE(m.p05)} to ${fmtE(m.p95)}.`;
   }
 
+  let lastLabel = "";
   function render(label) {
     const o = out, p = o.pWin;
     $("probBig").innerHTML = p >= 0.5 ? `<span style="color:var(--rep)">${pct(p)} ${last(cfg.rName)}</span>` : `<span style="color:var(--dem)">${pct(1 - p)} ${last(cfg.dName)}</span>`;
@@ -150,8 +150,7 @@
     const leader = p >= 0.5 ? cfg.rName : cfg.dName, lc = p >= 0.5 ? "r" : "d", d = describe(p);
     let h;
     const verdict = { "very likely": "very likely to win", likely: "likely to win", "leaning toward": "leans ahead" }[d];
-    if (apCall) h = `<b class="${apCall}">${apCall === "r" ? cfg.rName : cfg.dName}</b> wins (AP).`;
-    else if (!o.counted.total) h = `Pre-election: <b class="${lc}">${leader}</b> ${verdict || "even"}.`;
+    if (!o.counted.total) h = `Pre-election: <b class="${lc}">${leader}</b> ${verdict || "even"}.`;
     else h = verdict ? `<b class="${lc}">${leader}</b> ${verdict}` : "Toss-up";
     $("headline").innerHTML = h;
 
@@ -166,8 +165,9 @@
 
     const live = o.counted.total > 0;
     $("live").classList.toggle("off", !live);
-    $("liveTxt").textContent = apCall ? "Final" : live ? "Live" : "Pre-election";
-    $("stamp").textContent = (label ? label + " · " : "") + "Updated " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" });
+    $("liveTxt").textContent = live ? "Live" : "Pre-election";
+    if (label) lastLabel = label;
+    $("stamp").textContent = (lastLabel ? lastLabel + " · " : "") + "Updated " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" });
 
     renderTable(); renderHistory();
   }
@@ -231,131 +231,86 @@
     svg.setAttribute("viewBox", `0 0 ${W} ${H + 8}`);
   }
 
-  // ---------- Data sources ----------
-  function ingest(input, msgEl, label) {
-    const msg = $(msgEl); msg.classList.remove("err");
+  // ---------- Data ----------
+  // Live results come from the Vermont Secretary of State. On the hosted site a GitHub Action
+  // polls SOS and commits live/latest.json + live/history.json, so visitors never contact SOS.
+  // Anywhere without live/, the page reads SOS directly (its CDN allows cross-origin reads).
+  function ingest(snap, label) {
+    const parsed = M.parseSOS(snap, model, cfg);
+    results = parsed.results;
+    recompute(label);
+    if (parsed.unmatched.length) console.warn("Unmatched towns:", parsed.unmatched.join(", "));
+  }
+  const source = (when) => `Vermont Secretary of State, updated ${when}`;
+
+  // Hosted mode
+  let hostedTimer = null, hostedLast = null;
+  async function hostedFetch() {
     try {
-      let parsed, obj = typeof input === "string" ? null : input;
-      if (!obj) {
-        const text = input.trim();
-        if (text[0] === "{" || text[0] === "[") obj = JSON.parse(text);
-        else parsed = M.parseCSV(text, model, cfg);
-      }
-      if (obj) parsed = obj.races ? M.parseAP(obj, model, cfg) : M.parseSOS(obj, model, cfg);
-      results = parsed.results;
-      apCall = parsed.apState && parsed.apState.winner ? parsed.apState.winner : null;
-      recompute(label);
-      msg.textContent = `Matched ${parsed.results.size} towns.` + (parsed.unmatched.length ? ` Unmatched: ${parsed.unmatched.slice(0, 12).join(", ")}${parsed.unmatched.length > 12 ? "…" : ""}` : "");
-    } catch (e) { msg.classList.add("err"); msg.textContent = "Couldn’t read data: " + e.message; }
+      const r = await fetch("live/latest.json", { cache: "no-cache" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const snap = await r.json();
+      if (snap.path === hostedLast) return;
+      hostedLast = snap.path;
+      ingest(snap, source(snap.sosUpdated));
+    } catch (e) { console.warn("Couldn’t load results:", e.message); }
+  }
+  async function startHosted() {
+    const r = await fetch("live/history.json", { cache: "no-cache" });
+    if (!r.ok) throw new Error("no hosted history");
+    const snaps = await r.json();
+    if (!snaps.length) throw new Error("empty history");
+    history = [];
+    // Replay the night so the forecast chart is complete (fewer draws for speed)
+    for (const s of snaps.slice(0, -1)) {
+      try {
+        results = M.parseSOS(s, model, cfg).results;
+        const o = M.run(model, results, { draws: 400, seed: 7 });
+        history.push({ label: s.sosUpdated, p: o.pWin, ...o.margin, pctIn: o.counted.pctIn });
+      } catch (e) { /* skip a bad snapshot */ }
+    }
+    hostedLast = null;
+    await hostedFetch();
+    hostedTimer = setInterval(hostedFetch, 60000);
   }
 
-  // Demo
-  let demo = null, demoTimer = null, demoI = 0;
-  function demoInit() { demo = M.demoNight(model, (Math.random() * 1e9) | 0); demoI = 0; apCall = null; results = new Map(); history = []; recompute("Before polls close"); $("demoMsg").textContent = ""; }
-  function demoStep() {
-    if (!demo) demoInit();
-    if (demoI >= demo.steps.length) { stopDemo(); $("demoMsg").textContent = `Count complete. The true final margin was ${fmtM(demo.finalMargin)}.`; return; }
-    results = demo.steps[demoI++];
-    recompute(`Demo update ${demoI} of ${demo.steps.length}`);
-    $("demoMsg").textContent = `Update ${demoI} of ${demo.steps.length}. The true result is hidden until the count is complete.`;
-  }
-  function stopDemo() { clearInterval(demoTimer); demoTimer = null; $("demoPlay").textContent = "Start demo"; }
-  $("demoPlay").onclick = () => {
-    if (demoTimer) return stopDemo();
-    stopAP();
-    if (!demo || demoI >= demo.steps.length) demoInit();
-    demoTimer = setInterval(demoStep, +$("demoSpeed").value);
-    $("demoPlay").textContent = "Pause";
-  };
-  $("demoStep").onclick = () => { stopAP(); demoStep(); };
-  $("demoReset").onclick = () => { stopDemo(); demoInit(); };
-
-  // Vermont SOS, read directly (the CDN sends Access-Control-Allow-Origin: *).
-  // Each check fetches the small election index; the ~0.5 MB statewide file is
-  // downloaded only when its timestamped path changes.
+  // Direct mode: check the small election index every 2 minutes; download the
+  // ~0.5 MB statewide file only when its timestamped path changes.
   const SOS = "https://static.electionresults.vermont.gov";
-  let sosTimer = null, sosGuid = null, sosPath = null, sosLast = null;
+  let sosTimer = null, sosGuid = null, sosPath = null;
   const getJSON = async (u) => { const r = await fetch(u, { cache: "no-cache" }); if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); };
   async function sosFetch() {
-    const msg = $("sosMsg"); msg.classList.remove("err");
     try {
       if (!sosGuid) {
         const idx = await getJSON(`${SOS}/elections/elections.json`);
         const e = idx.find((x) => x.isGeneralElection && x.isStateWideElection && /^2026-11-03/.test(x.electionDate));
-        if (!e) throw new Error("2026 general election not found in the Vermont Secretary of State index");
+        if (!e) throw new Error("2026 general election not found in the SOS index");
         sosGuid = e.electionGuid;
       }
       const el = await getJSON(`${SOS}/elections/${sosGuid}.json`);
       const path = el.stateWide && el.stateWide.path && el.stateWide.path.replace(/\\/g, "/");
-      if (!path) throw new Error("No statewide results posted yet");
-      const when = el.lastUpdatedDate ? `Vermont Secretary of State, updated ${el.lastUpdatedDate}` : "Vermont Secretary of State";
-      if (path === sosPath) { msg.textContent = `No new results (${when}, ${el.townsReportingFormat || ""} towns). Checked ${new Date().toLocaleTimeString()}.`; return; }
+      if (!path || path === sosPath) return;
       const s = await getJSON(`${SOS}/${path}`);
       let gov = null;
       for (const blk of s.d || []) for (const o of blk.o || []) if (/^GOVERNOR$/i.test(o.on)) gov = o;
-      sosPath = path; sosLast = { gov, lastUpdated: el.lastUpdatedDate, townsReporting: el.townsReporting };
-      ingest(sosLast, "sosMsg", when);
-      msg.textContent = `${when} · ${el.townsReportingFormat || ""} towns reporting · ` + msg.textContent;
-    } catch (e) { msg.classList.add("err"); msg.textContent = "Vermont Secretary of State fetch failed: " + e.message + ". Will retry."; }
+      sosPath = path;
+      ingest({ gov, lastUpdated: el.lastUpdatedDate, townsReporting: el.townsReporting }, source(el.lastUpdatedDate));
+    } catch (e) { console.warn("Vermont Secretary of State fetch failed:", e.message); }
   }
-  function stopSOS() { clearInterval(sosTimer); sosTimer = null; $("sosStart").textContent = "Start live updates"; }
-  function startSOS() {
-    stopDemo(); stopAP(); demo = null;
-    if (!sosLast) history = [];
-    sosFetch(); sosTimer = setInterval(sosFetch, Math.max(60, +$("sosEvery").value) * 1000);
-    $("sosStart").textContent = "Stop live updates";
-  }
-  $("sosStart").onclick = () => (sosTimer ? stopSOS() : startSOS());
-  $("sosOnce").onclick = () => { sosPath = null; sosFetch(); };
-
-  // AP polling
-  let apTimer = null, lastAPText = "";
-  async function apFetch() {
-    const url = $("apUrl").value.trim();
-    try {
-      const r = await fetch(url + (url.includes("?") ? "&" : "?") + "t=" + Date.now(), { cache: "no-store" });
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      const text = await r.text();
-      if (text === lastAPText) { $("apMsg").textContent = "No change at " + new Date().toLocaleTimeString(); return; }
-      lastAPText = text;
-      ingest(text, "apMsg", "AP");
-    } catch (e) { $("apMsg").classList.add("err"); $("apMsg").textContent = "Fetch failed: " + e.message + (location.protocol === "file:" ? " (open via http://localhost, not as a file)" : ""); }
-  }
-  function stopAP() { clearInterval(apTimer); apTimer = null; $("apStart").textContent = "Start polling"; }
-  $("apStart").onclick = () => {
-    if (apTimer) return stopAP();
-    stopDemo(); demo = null; history = [];
-    apFetch(); apTimer = setInterval(apFetch, Math.max(5, +$("apEvery").value) * 1000);
-    $("apStart").textContent = "Stop polling";
-  };
-  $("apOnce").onclick = () => { stopDemo(); apFetch(); };
-
-  // File / paste
-  $("fileIn").onchange = async (e) => { const f = e.target.files[0]; if (!f) return; stopDemo(); stopAP(); ingest(await f.text(), "fileMsg", f.name); };
-  $("pasteGo").onclick = () => { stopDemo(); stopAP(); ingest($("pasteIn").value, "fileMsg", "Pasted data"); };
+  function startSOS() { history = []; sosFetch(); sosTimer = setInterval(sosFetch, 120000); }
 
   // Priors
   const fillPrior = () => { $("pMargin").value = prior.margin; $("pSd").value = prior.marginSd; $("pTurn").value = prior.turnout; $("pOther").value = prior.otherShare; };
   $("applyPrior").onclick = () => {
     prior = { ...prior, margin: +$("pMargin").value, marginSd: Math.max(2, +$("pSd").value), turnout: Math.max(50000, +$("pTurn").value), otherShare: Math.min(0.3, Math.max(0, +$("pOther").value)) };
-    if (document.getElementById("cR")) { cfg.rName = $("cR").value.trim() || cfg.rName; cfg.dName = $("cD").value.trim() || cfg.dName; }
-    cfg.rLast = last(cfg.rName); cfg.dLast = last(cfg.dName); cfg.jitter = $("jitter").checked;
-    setNames();
+    cfg.jitter = $("jitter").checked;
     model = M.build(window.VT_BASELINE, prior);
-    // re-key existing results against the rebuilt model (same keys)
-    demo = null; stopDemo();
-    if (hostedTimer) { clearInterval(hostedTimer); hostedTimer = null; hostedLast = null; startHosted().catch(goSOS); return; }
-    history = [];
-    recompute("Priors updated");
+    if (hostedTimer) { clearInterval(hostedTimer); hostedTimer = null; startHosted().catch(() => recompute("Priors updated")); return; }
+    history = []; sosPath = null;
+    if (sosTimer) sosFetch(); else recompute("Priors updated");
   };
   $("jitter").onchange = () => (cfg.jitter = $("jitter").checked);
   function setNames() { ["nameD1", "nameD2"].forEach((i) => ($(i).textContent = last(cfg.dName))); ["nameR1", "nameR2"].forEach((i) => ($(i).textContent = last(cfg.rName))); }
-
-  // Tabs
-  document.querySelectorAll("#tabs button").forEach((b) => (b.onclick = () => {
-    document.querySelectorAll("#tabs button").forEach((x) => x.classList.toggle("on", x === b));
-    document.querySelectorAll(".src").forEach((s) => s.classList.toggle("on", s.dataset.src === b.dataset.src));
-  }));
 
   // Light/dark switch: starts from the system setting, remembers the choice
   const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
@@ -367,53 +322,12 @@
     syncThemeBtn(); buildGauges(); if (out) render();
   };
   syncThemeBtn();
-
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { buildGauges(); if (out) render(); });
 
   fillPrior(); setNames(); buildGauges();
   recompute("Pre-election");
   requestAnimationFrame(tick);
 
-  // If fetch_ap.py has written results, switch to the AP feed automatically.
-  // (This only reads the local file; it never contacts AP.)
-  // Otherwise go live from the Vermont SOS feed.
-  const goSOS = () => { if (!apTimer && !demoTimer && !sosTimer && !hostedTimer) startSOS(); };
-
-  // Hosted mode: a GitHub Action polls SOS and commits live/latest.json + live/history.json.
-  // Viewers read only those files from this site, never SOS itself.
-  let hostedTimer = null, hostedLast = null;
-  async function hostedFetch() {
-    const msg = $("sosMsg"); msg.classList.remove("err");
-    try {
-      const r = await fetch("live/latest.json", { cache: "no-cache" });
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      const snap = await r.json();
-      if (snap.path === hostedLast) { msg.textContent = `No new results (Vermont Secretary of State updated ${snap.sosUpdated}, ${snap.townsReporting} towns). Checked ${new Date().toLocaleTimeString()}.`; return; }
-      hostedLast = snap.path;
-      ingest(snap, "sosMsg", `Vermont Secretary of State, updated ${snap.sosUpdated}`);
-      msg.textContent = `Vermont Secretary of State, updated ${snap.sosUpdated} · ${snap.townsReporting} towns reporting · ` + msg.textContent;
-    } catch (e) { msg.classList.add("err"); msg.textContent = "Couldn’t load results: " + e.message + ". Will retry."; }
-  }
-  async function startHosted() {
-    const r = await fetch("live/history.json", { cache: "no-cache" });
-    if (!r.ok) throw new Error("no hosted history");
-    const snaps = await r.json();
-    if (!snaps.length) throw new Error("empty history");
-    stopDemo(); stopAP(); stopSOS(); demo = null; history = [];
-    // Replay the night so the timeline is complete (fewer draws for speed)
-    for (const s of snaps.slice(0, -1)) {
-      try {
-        results = M.parseSOS(s, model, cfg).results;
-        const o = M.run(model, results, { draws: 400, seed: 7 });
-        history.push({ label: s.sosUpdated, p: o.pWin, ...o.margin, pctIn: o.counted.pctIn });
-      } catch (e) { /* skip bad snapshot */ }
-    }
-    $("sosStart").textContent = "Live (hosted)"; $("sosStart").disabled = true;
-    await hostedFetch();
-    hostedTimer = setInterval(hostedFetch, 60000);
-  }
-
-  // Hosted live/ files when this site has them, else read SOS directly.
-  if (location.protocol.startsWith("http")) startHosted().catch(goSOS);
-  else goSOS();
+  if (location.protocol.startsWith("http")) startHosted().catch(startSOS);
+  else startSOS();
 })();
