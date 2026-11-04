@@ -226,26 +226,37 @@
     el("path", { d: V.state, class: "state" }, svg);
     V.counties.forEach((c) => el("path", { d: c.d, class: "county" }, svg));
     const shifts = [];
+    mapInfo = [];
     let sr = 0, sd = 0, so = 0, pr = 0, pd = 0, po = 0;
     for (const t of model.towns) {
       const p = V.towns[t.name]; if (!p) continue;
       const x = results.get(t.key), b = rows[t.i];
+      const ptot = b["r" + y] + b["d" + y] + b["o" + y], past = ptot ? (100 * (b["r" + y] - b["d" + y])) / ptot : null;
+      const tot = x ? x.r + x.d + x.o : 0, now = tot ? (100 * (x.r - x.d)) / tot : null;
+      const info = { name: t.name, county: t.county, p, now, past, votes: tot, frac: x ? x.frac : 0, sh: null };
+      mapInfo.push(info);
       if (!x || x.frac < 0.999) { el("circle", { cx: p[0], cy: p[1], r: 1.6, class: "dot" }, svg); continue; }
-      const tot = x.r + x.d + x.o, ptot = b["r" + y] + b["d" + y] + b["o" + y];
       if (!tot || !ptot) continue;
-      const sh = (100 * (x.r - x.d)) / tot - (100 * (b["r" + y] - b["d" + y])) / ptot;
-      shifts.push({ p, sh, tot });
+      const sh = now - past;
+      info.sh = sh;
+      shifts.push({ p, sh, tot, info });
       sr += x.r; sd += x.d; so += x.o; pr += b["r" + y]; pd += b["d" + y]; po += b["o" + y];
     }
     // Scale so a typical (90th-percentile) shift draws about 26 units long
     const mags = shifts.map((s) => Math.abs(s.sh)).sort((a, b) => a - b);
     const ref = Math.max(5, mags.length ? mags[Math.floor(mags.length * 0.9)] : 10), k = 26 / ref;
     const g = el("g", {}, svg);
-    shifts.sort((a, b) => a.tot - b.tot).forEach(({ p, sh }) => {
+    shifts.sort((a, b) => a.tot - b.tot).forEach(({ p, sh, info }) => {
       const len = Math.max(2.5, Math.min(44, Math.abs(sh) * k)), ap = arrowPath(p[0], p[1], len, sh > 0), col = css(sh > 0 ? "--rep" : "--dem");
-      el("path", { d: ap.line, stroke: col, "stroke-width": 1.4, "stroke-linecap": "round", fill: "none", "stroke-opacity": 0.85 }, g);
-      el("path", { d: ap.head, fill: col, "fill-opacity": 0.85 }, g);
+      const ag = el("g", { class: "arrow" }, g);
+      el("path", { d: ap.line, stroke: col, "stroke-width": 1.4, "stroke-linecap": "round", fill: "none" }, ag);
+      el("path", { d: ap.head, fill: col }, ag);
+      // arrow midpoint, so hovering the arrow body also finds the town
+      const a = (30 * Math.PI) / 180;
+      info.mid = [p[0] + (sh > 0 ? 1 : -1) * Math.cos(a) * len * 0.6, p[1] - Math.sin(a) * len * 0.6];
+      info.el = ag;
     });
+    mapRing = el("circle", { r: 4.5, class: "ring", style: "display:none" }, svg);
     V.labels.forEach(([n, x, yy]) => { const t = el("text", { x: x + 4, y: yy - 3, class: "city" }, svg); t.textContent = n.replace(/ City$/, ""); });
     // Legend
     const lg = $("legendArrows"); lg.innerHTML = "";
@@ -263,8 +274,45 @@
       $("pastLede").innerHTML = `The towns that are fully counted voted <b class="${side}">${Math.abs(shift).toFixed(0)} points more ${shift > 0 ? "Republican" : "Democratic"}</b> than they did in the ${name} governor’s race.`;
     } else $("pastLede").textContent = "";
   }
+  // Hover / tap details for the map: nearest town point or arrow under the pointer
+  let mapInfo = [], mapRing = null, mapHot = null;
+  function mapHover(ev) {
+    const svg = $("shiftMap"), fig = svg.closest(".map"), tip = $("mapTip");
+    const m = svg.getScreenCTM(); if (!m || !mapInfo.length) return;
+    const pt = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse());
+    let best = null, bd = 12 * 12;
+    for (const t of mapInfo) {
+      for (const q of t.mid ? [t.p, t.mid] : [t.p]) {
+        const d = (q[0] - pt.x) ** 2 + (q[1] - pt.y) ** 2;
+        if (d < bd) { bd = d; best = t; }
+      }
+    }
+    if (mapHot && mapHot !== best && mapHot.el) mapHot.el.classList.remove("hot");
+    mapHot = best;
+    if (!best) { tip.hidden = true; mapRing.style.display = "none"; return; }
+    if (best.el) best.el.classList.add("hot");
+    mapRing.setAttribute("cx", best.p[0]); mapRing.setAttribute("cy", best.p[1]); mapRing.style.display = "";
+    const name = MAPNAMES[mapYear], col = (v) => (v == null ? "" : v > 0 ? "r" : "d");
+    const status = best.frac >= 0.999 ? "Fully counted" : best.votes ? `Partly counted (~${Math.round(best.frac * 100)}%)` : "No results yet";
+    tip.innerHTML = `<div class="tt-h"><b>${best.name.replace(/ City$/, "")}</b><span>${best.county}</span></div>
+      <div class="tt-r"><span>2026</span><b class="${col(best.now)}">${best.now == null ? "—" : fmtM(best.now, true)}</b></div>
+      <div class="tt-r"><span>${name}</span><b class="${col(best.past)}">${best.past == null ? "—" : fmtM(best.past, true)}</b></div>
+      ${best.sh != null ? `<div class="tt-r tt-s"><span>Shift</span><b class="${col(best.sh)}">${best.sh > 0 ? "R" : "D"} +${Math.abs(best.sh).toFixed(1)}</b></div>` : ""}
+      <div class="tt-f">${status}${best.votes ? ` · ${num(best.votes)} votes` : ""}</div>`;
+    tip.hidden = false;
+    const fr = fig.getBoundingClientRect(), sp = new DOMPoint(best.p[0], best.p[1]).matrixTransform(m);
+    let x = sp.x - fr.left + 14, yy = sp.y - fr.top - 10;
+    if (x + tip.offsetWidth > fr.width - 6) x = sp.x - fr.left - tip.offsetWidth - 14;
+    yy = Math.max(6, Math.min(yy, fr.height - tip.offsetHeight - 6));
+    tip.style.left = x + "px"; tip.style.top = yy + "px";
+  }
+  function mapLeave() { $("mapTip").hidden = true; if (mapRing) mapRing.style.display = "none"; if (mapHot && mapHot.el) mapHot.el.classList.remove("hot"); mapHot = null; }
+  $("shiftMap").addEventListener("pointermove", mapHover);
+  $("shiftMap").addEventListener("pointerdown", mapHover);
+  $("shiftMap").addEventListener("pointerleave", mapLeave);
+
   document.querySelectorAll("#mapYear button").forEach((b) => (b.onclick = () => {
-    mapYear = +b.dataset.y;
+    mapYear = +b.dataset.y; mapLeave();
     document.querySelectorAll("#mapYear button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
     renderMap();
   }));

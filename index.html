@@ -77,6 +77,17 @@
   tr:last-child td { border-bottom: 0; }
   td:first-child { font-weight: 600; }
   td.r { color: var(--rep); font-weight: 600; } td.d { color: var(--dem); font-weight: 600; }
+  .map { position: relative; }
+  .map > svg { touch-action: manipulation; cursor: crosshair; }
+  .map .arrow { opacity: .85; } .map .arrow.hot { opacity: 1; } .map .arrow.hot path:first-child { stroke-width: 2.6; }
+  .map .ring { fill: none; stroke: var(--ink); stroke-width: 1.5; pointer-events: none; }
+  .tip { position: absolute; z-index: 5; pointer-events: none; min-width: 168px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-ctl); box-shadow: 0 8px 24px rgba(0,0,0,.16); font-size: var(--t-meta); text-align: left; }
+  .tt-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+  .tt-h b { font-size: var(--t-body); } .tt-h span { color: var(--muted); font-size: var(--t-hint); }
+  .tt-r { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; font-variant-numeric: tabular-nums; }
+  .tt-r span { color: var(--muted); } .tt-r b.r { color: var(--rep); } .tt-r b.d { color: var(--dem); }
+  .tt-s { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 6px; }
+  .tt-f { margin-top: 6px; color: var(--muted); font-size: var(--t-hint); }
   .lede { font-size: var(--t-item); line-height: 1.5; margin: -4px 0 14px; color: var(--ink2); }
   .lede b.d { color: var(--dem); } .lede b.r { color: var(--rep); }
   .past { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; align-items: start; }
@@ -183,6 +194,7 @@
     <figure class="map card">
       <div class="seg" id="mapYear" role="group" aria-label="Compare with"><button type="button" data-y="22" aria-pressed="true">2022</button><button type="button" data-y="20" aria-pressed="false">2020</button><button type="button" data-y="18" aria-pressed="false">2018</button><button type="button" data-y="16" aria-pressed="false">2016</button></div>
       <svg id="shiftMap" role="img" aria-label="Map of the shift in margin by town"></svg>
+      <div class="tip" id="mapTip" hidden></div>
       <figcaption>
         <div class="legend-title">Shift in margin</div>
         <svg class="legend" viewBox="0 0 180 34" aria-hidden="true"><g id="legendArrows"></g></svg>
@@ -212,9 +224,9 @@
   </details>
 </main>
 
-<script src="data/vtmap.js?v=13"></script>
-<script src="data/baseline.js?v=13"></script>
-<script src="model.js?v=13"></script>
-<script src="app.js?v=13"></script>
+<script src="data/vtmap.js?v=14"></script>
+<script src="data/baseline.js?v=14"></script>
+<script src="model.js?v=14"></script>
+<script src="app.js?v=14"></script>
 </body>
 </html>
