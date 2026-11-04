@@ -59,9 +59,6 @@
       { a: Mg(-60), t: "+60" }, { a: Mg(-30), t: "+30" }, { a: Mg(-10), t: "+10" }, { a: 0, t: "Even" },
       { a: Mg(10), t: "+10" }, { a: Mg(30), t: "+30" }, { a: Mg(60), t: "+60" },
     ]);
-    // 90% range band, drawn just inside the dial and under the needle
-    gM.range = el("path", { d: "", "fill-opacity": 0.55 }, $("gMargin"));
-    $("gMargin").insertBefore(gM.range, gM.node);
     setAngle(gP); setAngle(gM);
     if (out) drawRange();
   }
@@ -120,13 +117,34 @@
     render(label);
   }
 
+  // Margin-of-error bar: 90% range (light), 50% range (dark), median dot, "Even" tick when in view.
+  // The range comes only from the vote still out, so it narrows as towns report.
+  function renderMoe(m) {
+    const w = m.p95 - m.p05, pad = Math.max(1.5, w * 0.35);
+    const lo = m.p05 - pad, hi = m.p95 + pad;
+    const x = (v) => (((v - lo) / (hi - lo)) * 100).toFixed(2) + "%";
+    const side = m.med > 0 ? "rep" : "dem";
+    const evenTick = lo < 0 && hi > 0 ? `<i class="moe-even" style="left:${x(0)}"><b>Even</b></i>` : "";
+    const fmtE = (v) => fmtM(v, true).replace(" ", "");
+    $("marginSub").innerHTML = `
+      <div class="moe" style="--c:var(--${side})">
+        <div class="moe-track">
+          ${evenTick}
+          <i class="moe-90" style="left:${x(m.p05)};width:calc(${x(m.p95)} - ${x(m.p05)})"></i>
+          <i class="moe-50" style="left:${x(m.p25)};width:calc(${x(m.p75)} - ${x(m.p25)})"></i>
+          <i class="moe-dot" style="left:${x(m.med)}"></i>
+        </div>
+        <div class="moe-ends"><span style="left:${x(m.p05)}">${fmtE(m.p05)}</span><span style="left:${x(m.p95)}">${fmtE(m.p95)}</span></div>
+        <div class="moe-cap">90% range <span>·</span> ±${(w / 2).toFixed(1)}</div>
+      </div>`;
+    $("marginSub").title = `Middle 50% of outcomes: ${fmtE(m.p25)} to ${fmtE(m.p75)}. 90%: ${fmtE(m.p05)} to ${fmtE(m.p95)}.`;
+  }
+
   function render(label) {
     const o = out, p = o.pWin;
     $("probBig").innerHTML = p >= 0.5 ? `<span style="color:var(--rep)">${pct(p)} ${last(cfg.rName)}</span>` : `<span style="color:var(--dem)">${pct(1 - p)} ${last(cfg.dName)}</span>`;
     $("marginBig").innerHTML = `<span class="${cls(o.margin.med)}" style="color:var(--${o.margin.med > 0 ? "rep" : "dem"})">${fmtM(o.margin.med)}</span>`;
-    const moe = (o.margin.p95 - o.margin.p05) / 2;
-    $("marginSub").textContent = `± ${moe.toFixed(1)} pts`;
-    $("marginSub").title = `90% range: ${fmtM(o.margin.p05, true)} to ${fmtM(o.margin.p95, true)}`;
+    renderMoe(o.margin);
     drawRange();
 
     const leader = p >= 0.5 ? cfg.rName : cfg.dName, lc = p >= 0.5 ? "r" : "d", d = describe(p);
