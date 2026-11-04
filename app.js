@@ -264,13 +264,13 @@
       if (!sosGuid) {
         const idx = await getJSON(`${SOS}/elections/elections.json`);
         const e = idx.find((x) => x.isGeneralElection && x.isStateWideElection && /^2026-11-03/.test(x.electionDate));
-        if (!e) throw new Error("2026 general election not found in SOS index");
+        if (!e) throw new Error("2026 general election not found in the Vermont Secretary of State index");
         sosGuid = e.electionGuid;
       }
       const el = await getJSON(`${SOS}/elections/${sosGuid}.json`);
       const path = el.stateWide && el.stateWide.path && el.stateWide.path.replace(/\\/g, "/");
       if (!path) throw new Error("No statewide results posted yet");
-      const when = el.lastUpdatedDate ? `SOS updated ${el.lastUpdatedDate}` : "SOS";
+      const when = el.lastUpdatedDate ? `Vermont Secretary of State, updated ${el.lastUpdatedDate}` : "Vermont Secretary of State";
       if (path === sosPath) { msg.textContent = `No new results (${when}, ${el.townsReportingFormat || ""} towns). Checked ${new Date().toLocaleTimeString()}.`; return; }
       const s = await getJSON(`${SOS}/${path}`);
       let gov = null;
@@ -278,7 +278,7 @@
       sosPath = path; sosLast = { gov, lastUpdated: el.lastUpdatedDate, townsReporting: el.townsReporting };
       ingest(sosLast, "sosMsg", when);
       msg.textContent = `${when} · ${el.townsReportingFormat || ""} towns reporting · ` + msg.textContent;
-    } catch (e) { msg.classList.add("err"); msg.textContent = "SOS fetch failed: " + e.message + ". Will retry."; }
+    } catch (e) { msg.classList.add("err"); msg.textContent = "Vermont Secretary of State fetch failed: " + e.message + ". Will retry."; }
   }
   function stopSOS() { clearInterval(sosTimer); sosTimer = null; $("sosStart").textContent = "Start live updates"; }
   function startSOS() {
@@ -370,10 +370,10 @@
       const r = await fetch("live/latest.json", { cache: "no-cache" });
       if (!r.ok) throw new Error("HTTP " + r.status);
       const snap = await r.json();
-      if (snap.path === hostedLast) { msg.textContent = `No new results (SOS updated ${snap.sosUpdated}, ${snap.townsReporting} towns). Checked ${new Date().toLocaleTimeString()}.`; return; }
+      if (snap.path === hostedLast) { msg.textContent = `No new results (Vermont Secretary of State updated ${snap.sosUpdated}, ${snap.townsReporting} towns). Checked ${new Date().toLocaleTimeString()}.`; return; }
       hostedLast = snap.path;
-      ingest(snap, "sosMsg", `SOS updated ${snap.sosUpdated}`);
-      msg.textContent = `SOS updated ${snap.sosUpdated} · ${snap.townsReporting} towns reporting · ` + msg.textContent;
+      ingest(snap, "sosMsg", `Vermont Secretary of State, updated ${snap.sosUpdated}`);
+      msg.textContent = `Vermont Secretary of State, updated ${snap.sosUpdated} · ${snap.townsReporting} towns reporting · ` + msg.textContent;
     } catch (e) { msg.classList.add("err"); msg.textContent = "Couldn’t load results: " + e.message + ". Will retry."; }
   }
   async function startHosted() {
