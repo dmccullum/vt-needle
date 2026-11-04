@@ -104,7 +104,7 @@
   .legend text { font: 500 10px var(--display); fill: var(--muted); }
   .legend-note { font-size: var(--t-hint); color: var(--muted); max-width: 260px; margin: 4px auto 0; line-height: 1.4; }
   .seg { display: flex; padding: 2px; border-radius: var(--r-ctl); background: var(--panel2); }
-  .seg button { flex: 1; border: 0; background: none; cursor: pointer; height: 28px; padding: 0 10px; border-radius: var(--r-tag); font: 700 var(--t-meta)/1 var(--display); color: var(--muted); }
+  .seg button { flex: 1; border: 0; background: none; cursor: pointer; height: 28px; padding: 0 6px; border-radius: var(--r-tag); font: 700 var(--t-meta)/1 var(--display); color: var(--muted); }
   .seg button:hover { color: var(--ink); }
   .seg button[aria-pressed="true"] { background: var(--primary); color: #fff; }
   .est { font-weight: 500; color: var(--muted); font-size: var(--t-hint); }
@@ -192,7 +192,7 @@
   <div class="past">
     <div class="tablewrap card"><table id="ptab"></table></div>
     <figure class="map card">
-      <div class="seg" id="mapYear" role="group" aria-label="Compare with"><button type="button" data-y="22" aria-pressed="true">2022</button><button type="button" data-y="20" aria-pressed="false">2020</button><button type="button" data-y="18" aria-pressed="false">2018</button><button type="button" data-y="16" aria-pressed="false">2016</button></div>
+      <div class="seg" id="mapYear" role="group" aria-label="Compare with"><button type="button" data-y="24" aria-pressed="true">2024</button><button type="button" data-y="22" aria-pressed="false">2022</button><button type="button" data-y="20" aria-pressed="false">2020</button><button type="button" data-y="18" aria-pressed="false">2018</button><button type="button" data-y="16" aria-pressed="false">2016</button></div>
       <svg id="shiftMap" role="img" aria-label="Map of the shift in margin by town"></svg>
       <div class="tip" id="mapTip" hidden></div>
       <figcaption>
@@ -224,9 +224,9 @@
   </details>
 </main>
 
-<script src="data/vtmap.js?v=14"></script>
-<script src="data/baseline.js?v=14"></script>
-<script src="model.js?v=14"></script>
-<script src="app.js?v=14"></script>
+<script src="data/vtmap.js?v=15"></script>
+<script src="data/baseline.js?v=15"></script>
+<script src="model.js?v=15"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>

@@ -25,7 +25,7 @@ python3 scripts/poll_sos.py     # one SOS check; refreshes live/ (no commit)
 
 ## Model
 
-- **Baseline** (`data/baseline.js`): 246 towns, with governor results from 2016, 2018, 2020 and 2022, and president from 2020. Sources are OpenElections for 2016–2020 and the Vermont Election Archive for 2022. Essex Junction is folded into Essex. SOS reports them separately, and the parser merges them using their 2022 vote shares.
+- **Baseline** (`data/baseline.js`): 246 towns, with governor results from 2016 through 2024, and president from 2020. Sources are OpenElections for 2016–2020, the Vermont Election Archive for 2022, and the Secretary of State's official 2024 results. The town lean uses 2016–2022; 2024 is used only for comparisons. Essex Junction is folded into Essex. SOS reports them separately, and the parser merges them using their 2022 vote shares.
 - **Prior:** a statewide Scott margin (default R+40 ± 14) and turnout (default 290k ± 8%). Each town's expected share is that prior shifted by its historical lean in logit space, with 2022 weighted most. Expected turnout comes mostly from the 2022 and 2018 midterms. You can change these on the page under Model settings.
 - **Live update:** each reporting town gives a residual, its actual result minus its expected result. The model pools these residuals into three estimates (logit space):
   - a statewide swing
@@ -35,7 +35,7 @@ python3 scripts/poll_sos.py     # one SOS check; refreshes live/ (no commit)
   Turnout is handled the same way in log space. For a partly reported town, the model uses the town's own count, and the rest of its vote is scaled up from the share of districts reported.
 - **Shared late-vote error:** each simulation shifts all the outstanding vote together, by a logit SD of 0.06 on share and a log SD of 0.04 on turnout. That way the risk that the remaining vote is all bluer or redder doesn't average away across towns.
 - **Output:** 2,000 Monte Carlo draws of the full count give the win probability, the median margin, and the 50% and 90% ranges, statewide and by county. The margin of error shown on the page is half the 90% range. It reflects only the uncertainty in the outstanding vote, so it narrows as towns report.
-- **Compared with past races:** each 2016–2022 governor race, statewide and in the towns fully counted tonight, with the shift to 2026. The map draws one arrow per fully counted town: up-left for a shift toward the Democrat, up-right toward Scott, with length proportional to the shift.
+- **Compared with past races:** each 2016–2024 governor race, statewide and in the towns fully counted tonight, with the shift to 2026. The map draws one arrow per fully counted town: up-left for a shift toward the Democrat, up-right toward Scott, with length proportional to the shift.
 - **Needle jitter:** the probability needle wobbles by about √(p(1−p)/30), and the margin needle moves within the 50% range. You can turn jitter off under Model settings.
 
 The model is checked against its own simulated election nights (`demoNight` in `model.js`). That only shows it is consistent with its assumptions. Real nights can break them.

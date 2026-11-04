@@ -189,7 +189,7 @@
   }
 
   // Past governor races: statewide result, and the same towns that have fully reported tonight
-  const PAST = [[22, "2022", "Siegel"], [20, "2020", "Zuckerman"], [18, "2018", "Hallquist"], [16, "2016", "Minter"]];
+  const PAST = [[24, "2024", "Charlestin"], [22, "2022", "Siegel"], [20, "2020", "Zuckerman"], [18, "2018", "Hallquist"], [16, "2016", "Minter"]];
   function renderPast() {
     const rows = window.VT_BASELINE, reported = model.towns.filter((t) => { const x = results.get(t.key); return x && x.frac >= 0.999; });
     const mg = (r, d, o) => (r + d + o > 0 ? (100 * (r - d)) / (r + d + o) : null);
@@ -210,8 +210,8 @@
 
   // Shift-in-margin map: an arrow per fully counted town, tilted up-left (more Dem.) or
   // up-right (more Rep.) with length proportional to the shift since the chosen race.
-  let mapYear = 22;
-  const MAPNAMES = { 22: "2022", 20: "2020", 18: "2018", 16: "2016" };
+  let mapYear = 24;
+  const MAPNAMES = { 24: "2024", 22: "2022", 20: "2020", 18: "2018", 16: "2016" };
   const arrowPath = (x, y, len, right) => {
     const a = (30 * Math.PI) / 180, dx = Math.cos(a) * len * (right ? 1 : -1), dy = -Math.sin(a) * len;
     const ex = x + dx, ey = y + dy, h = Math.min(4, 2 + len * 0.12), ux = dx / len, uy = dy / len;
