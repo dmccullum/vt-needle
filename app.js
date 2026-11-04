@@ -205,7 +205,7 @@
       const same = reported.length ? mg(...["r", "d", "o"].map((f) => reported.reduce((a, t) => a + rows[t.i][k(f)], 0))) : null;
       body.push(`<tr><td>${label} · Scott vs. ${dem}</td>${cell(st)}${cell(same)}${shift(same)}</tr>`);
     }
-    $("ptab").innerHTML = `<thead><tr><th>Race</th><th>Statewide</th><th>Towns in so far (${reported.length})</th><th>Shift, same towns</th></tr></thead><tbody>${body.join("")}</tbody>`;
+    $("ptab").innerHTML = `<thead><tr><th>Race</th><th>Statewide</th><th title="Towns fully counted tonight">Same towns (${reported.length})</th><th title="How far tonight\u2019s vote has moved from that race, in the towns fully counted tonight">Shift to 2026</th></tr></thead><tbody>${body.join("")}</tbody>`;
   }
 
   function renderTable() {
