@@ -77,6 +77,7 @@
   tr:last-child td { border-bottom: 0; }
   td:first-child { font-weight: 600; }
   td.r { color: var(--rep); font-weight: 600; } td.d { color: var(--dem); font-weight: 600; }
+  .est { font-weight: 500; color: var(--muted); font-size: var(--t-hint); }
   .range { position: relative; height: 12px; min-width: 120px; }
   .range .axis { position: absolute; left: 0; right: 0; top: 5px; height: 1px; background: var(--line); }
   .range .zero { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line-strong); }
@@ -156,6 +157,9 @@
   <h2>By county</h2>
   <div class="tablewrap card"><table id="ctab"></table></div>
 
+  <h2>Compared with past races</h2>
+  <div class="tablewrap card"><table id="ptab"></table></div>
+
   <details class="panel card">
     <summary>Model settings</summary>
     <div class="row">
@@ -177,8 +181,8 @@
   </details>
 </main>
 
-<script src="data/baseline.js?v=9"></script>
-<script src="model.js?v=9"></script>
-<script src="app.js?v=9"></script>
+<script src="data/baseline.js?v=10"></script>
+<script src="model.js?v=10"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>

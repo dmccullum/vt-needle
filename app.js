@@ -107,6 +107,7 @@
     drawMarginGauge($("gMargin"));
     setAngle(gP); setAngle(gM);
   }
+  const JITTER = 0.35; // share of the model's spread the needles wobble across (1 = full NYT-style)
   const gP = { node: null, cur: 0, target: 0 };
   const gM = { node: null, cur: 0, target: 0 };
   const setAngle = (g) => g.node && g.node.setAttribute("transform", `rotate(${g.cur} ${CX} ${CY})`);
@@ -115,19 +116,19 @@
   let lastJ = 0;
   function tick(ts) {
     if (out) {
-      if (ts - lastJ > 380) {
+      if (ts - lastJ > 900) {
         lastJ = ts;
         const p = out.pWin;
         let pj = p, mj = out.margin.med;
         if (cfg.jitter) {
-          const sd = Math.sqrt((p * (1 - p)) / 30);
+          const sd = JITTER * Math.sqrt((p * (1 - p)) / 30);
           pj = Math.max(0, Math.min(1, p + sd * randn()));
-          mj = out.margin.p25 + Math.random() * (out.margin.p75 - out.margin.p25);
+          mj = out.margin.med + JITTER * (out.margin.p25 + Math.random() * (out.margin.p75 - out.margin.p25) - out.margin.med);
         }
         gP.target = (pj - 0.5) * 180;
         gM.target = mAng(mj);
       }
-      for (const g of [gP, gM]) { g.cur += (g.target - g.cur) * 0.08; setAngle(g); }
+      for (const g of [gP, gM]) { g.cur += (g.target - g.cur) * 0.05; setAngle(g); }
     }
     requestAnimationFrame(tick);
   }
@@ -184,7 +185,27 @@
     if (label) lastLabel = label;
     $("stamp").textContent = (lastLabel ? lastLabel + " · " : "") + "Updated " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" });
 
-    renderTable(); renderHistory();
+    renderTable(); renderPast(); renderHistory();
+  }
+
+  // Past governor races: statewide result, and the same towns that have fully reported tonight
+  const PAST = [[22, "2022", "Siegel"], [20, "2020", "Zuckerman"], [18, "2018", "Hallquist"], [16, "2016", "Minter"]];
+  function renderPast() {
+    const rows = window.VT_BASELINE, reported = model.towns.filter((t) => { const x = results.get(t.key); return x && x.frac >= 0.999; });
+    const mg = (r, d, o) => (r + d + o > 0 ? (100 * (r - d)) / (r + d + o) : null);
+    let nr = 0, nd = 0, no = 0;
+    reported.forEach((t) => { const x = results.get(t.key); nr += x.r; nd += x.d; no += x.o; });
+    const now = mg(nr, nd, no);
+    const cell = (m) => `<td class="${cls(m)}">${m == null ? "—" : fmtM(m, true)}</td>`;
+    const shift = (m) => (now == null || m == null ? "<td>—</td>" : `<td class="${cls(now - m)}">${(now - m > 0 ? "R" : "D")} +${Math.abs(now - m).toFixed(1)}</td>`);
+    const body = [`<tr><td>2026 · Scott vs. ${last(cfg.dName)}</td><td class="${cls(out.margin.med)}">${fmtM(out.margin.med, true)} <span class="est">est.</span></td>${cell(now)}<td>—</td></tr>`];
+    for (const [y, label, dem] of PAST) {
+      const k = (f) => f + y;
+      const st = mg(...["r", "d", "o"].map((f) => rows.reduce((a, r) => a + r[k(f)], 0)));
+      const same = reported.length ? mg(...["r", "d", "o"].map((f) => reported.reduce((a, t) => a + rows[t.i][k(f)], 0))) : null;
+      body.push(`<tr><td>${label} · Scott vs. ${dem}</td>${cell(st)}${cell(same)}${shift(same)}</tr>`);
+    }
+    $("ptab").innerHTML = `<thead><tr><th>Race</th><th>Statewide</th><th>Towns in so far (${reported.length})</th><th>Shift, same towns</th></tr></thead><tbody>${body.join("")}</tbody>`;
   }
 
   function renderTable() {
