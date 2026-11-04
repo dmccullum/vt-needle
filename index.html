@@ -3,135 +3,158 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <title>Vermont Governor Needle</title>
 <style>
+  /* Tokens follow the CB AdLab interface language (DM Sans / DM Serif Display, ink on white, #3d5ff5 accent). */
   :root {
-    --bg: #ffffff; --fg: #121212; --muted: #666; --faint: #999; --rule: #e2e2e2; --panel: #f7f7f5;
-    --rep: #d0273e; --dem: #2a6fbd; --rep-soft: #f3c1c8; --dem-soft: #c4d8f0; --needle: #121212;
-    --serif: Georgia, "Times New Roman", "Cheltenham", serif;
-    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --bg: #ffffff; --panel: #ffffff; --panel2: #f7f7f5; --ink: #050505; --ink2: #3c3c3c; --muted: #6f6f6f;
+    --line: #e6e6e5; --line-strong: #d4d4d2; --accent: #3d5ff5; --primary: #3d5ff5; --primary-hover: #2e4edf; --tint: #e9edff;
+    --rep: #b4332b; --dem: #3d5ff5; --needle: #050505;
+    --fg: var(--ink); --rule: var(--line); --faint: #8a8a88;
+    --r-tag: 6px; --r-ctl: 8px; --r-card: 12px;
+    --t-label: 11px; --t-hint: 12px; --t-meta: 13px; --t-body: 14px; --t-item: 15px; --t-card: 17px; --t-title: 22px;
+    --display: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --serif: 'DM Serif Display', Georgia, serif; color-scheme: light;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #121212; --fg: #ececec; --muted: #a8a8a8; --faint: #777; --rule: #2e2e2e; --panel: #1b1b1b;
-      --rep: #f0566b; --dem: #5b9be0; --rep-soft: #5a2530; --dem-soft: #1f3a5a; --needle: #f2f2f2;
-    }
-  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0f1115; --panel: #191c22; --panel2: #22262d; --ink: #f5f5f2; --ink2: #d4d6da; --muted: #b4b9c2;
+    --line: #343840; --line-strong: #454a53; --accent: #9aaaff; --tint: #202b54;
+    --rep: #ff8a80; --dem: #9aaaff; --needle: #f5f5f2; --faint: #7d838d; color-scheme: dark } }
   :root[data-theme="dark"] {
-    --bg: #121212; --fg: #ececec; --muted: #a8a8a8; --faint: #777; --rule: #2e2e2e; --panel: #1b1b1b;
-    --rep: #f0566b; --dem: #5b9be0; --rep-soft: #5a2530; --dem-soft: #1f3a5a; --needle: #f2f2f2;
-  }
+    --bg: #0f1115; --panel: #191c22; --panel2: #22262d; --ink: #f5f5f2; --ink2: #d4d6da; --muted: #b4b9c2;
+    --line: #343840; --line-strong: #454a53; --accent: #9aaaff; --tint: #202b54;
+    --rep: #ff8a80; --dem: #9aaaff; --needle: #f5f5f2; --faint: #7d838d; color-scheme: dark }
+
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
-  main { max-width: 860px; margin: 0 auto; padding: 28px 16px 64px; }
-  .kicker { font: 700 12px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 8px; }
-  .live { display: inline-flex; align-items: center; gap: 6px; color: var(--rep); }
-  .live i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: pulse 1.6s infinite; }
-  .live.off { color: var(--faint); } .live.off i { animation: none; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: var(--t-body)/1.45 var(--display); -webkit-font-smoothing: antialiased; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  main { max-width: 880px; margin: 0 auto; padding: 32px 16px 64px; }
+
+  .kicker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font: 700 var(--t-label)/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .live { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: var(--r-tag); background: color-mix(in srgb, var(--rep) 14%, transparent); color: var(--rep); }
+  .live i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 1.6s infinite; }
+  .live.off { background: var(--panel2); color: var(--muted); } .live.off i { animation: none; }
   @keyframes pulse { 50% { opacity: .25; } }
-  h1 { font: 700 clamp(28px, 5vw, 40px)/1.12 var(--serif); margin: 12px 0 10px; letter-spacing: -.01em; }
-  .dek { font: 400 18px/1.45 var(--serif); color: var(--muted); margin: 0 0 6px; max-width: 640px; }
-  .stamp { font: 13px var(--sans); color: var(--faint); margin-bottom: 24px; }
-  .headline-result { font: 400 20px/1.4 var(--serif); border-top: 1px solid var(--fg); padding-top: 14px; margin: 0 0 8px; }
-  .headline-result b.r { color: var(--rep); } .headline-result b.d { color: var(--dem); }
+  h1 { font: 400 clamp(30px, 6vw, 44px)/1.08 var(--serif); letter-spacing: -.01em; margin: 14px 0 6px; }
+  .stamp { font-size: var(--t-meta); color: var(--muted); margin-bottom: 20px; }
+  .headline-result { font: 600 var(--t-card)/1.4 var(--display); margin: 0 0 16px; }
+  .headline-result b { font-weight: 700; } .headline-result b.r { color: var(--rep); } .headline-result b.d { color: var(--dem); }
 
-  .needles { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 8px 0 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-card); }
+  .needles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 640px) { .needles { grid-template-columns: 1fr; } }
-  .gauge h3 { font: 700 13px var(--sans); text-transform: uppercase; letter-spacing: .06em; text-align: center; margin: 0 0 4px; color: var(--muted); }
+  .gauge { padding: 16px 12px 18px; }
+  .gauge h3 { font: 700 var(--t-label) var(--display); letter-spacing: .1em; text-transform: uppercase; text-align: center; margin: 0 0 6px; color: var(--muted); }
   .gauge svg { width: 100%; height: auto; display: block; overflow: visible; }
-  .gauge .big { text-align: center; font: 700 30px/1.1 var(--sans); font-variant-numeric: tabular-nums; margin-top: -6px; }
-  .gauge .sub { text-align: center; font: 13px var(--sans); color: var(--muted); margin-top: 4px; }
-  .cands { display: flex; justify-content: space-between; font: 700 14px var(--sans); margin: 0 6% 0; }
+  .gauge .big { text-align: center; font: 700 28px/1.1 var(--display); letter-spacing: -.015em; font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .gauge .sub { text-align: center; font-size: var(--t-meta); color: var(--muted); margin-top: 4px; }
+  .cands { display: flex; justify-content: space-between; font: 700 var(--t-meta) var(--display); margin: -2px 10% 0; }
   .cands .d { color: var(--dem); } .cands .r { color: var(--rep); }
-  svg text { fill: var(--muted); font: 11px var(--sans); }
+  svg text { fill: var(--muted); font: 500 11px var(--display); }
 
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: 20px 0 28px; }
-  @media (max-width: 640px) { .stats { grid-template-columns: 1fr 1fr; } }
-  .stat { padding: 12px 10px; border-right: 1px solid var(--rule); }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); margin: 12px 0 32px; overflow: hidden; }
+  @media (max-width: 640px) { .stats { grid-template-columns: 1fr 1fr; } .stat:nth-child(2) { border-right: 0; } .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); } }
+  .stat { padding: 14px 16px; border-right: 1px solid var(--line); }
   .stat:last-child { border-right: 0; }
-  .stat .l { font: 12px var(--sans); color: var(--muted); }
-  .stat .v { font: 700 20px/1.3 var(--sans); font-variant-numeric: tabular-nums; }
-  .stat .s { font: 12px var(--sans); color: var(--faint); }
-  .bar { height: 6px; background: var(--rule); margin-top: 6px; } .bar i { display: block; height: 100%; background: var(--fg); }
+  .stat .l { font: 700 var(--t-label) var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .stat .v { font: 700 20px/1.3 var(--display); font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .stat .s { font-size: var(--t-hint); color: var(--muted); }
+  .bar { height: 6px; background: var(--panel2); border-radius: 3px; margin-top: 8px; overflow: hidden; } .bar i { display: block; height: 100%; background: var(--ink); border-radius: 3px; }
 
-  h2 { font: 700 20px/1.2 var(--serif); margin: 32px 0 4px; }
-  .note { font: 14px/1.5 var(--sans); color: var(--muted); margin: 0 0 12px; }
+  h2 { font: 700 var(--t-card)/1.2 var(--display); letter-spacing: -.01em; margin: 32px 0 12px; }
+  .note { font-size: var(--t-meta); line-height: 1.5; color: var(--muted); margin: 0 0 12px; }
+  .chart { padding: 12px 12px 4px; }
   .chart svg { width: 100%; height: auto; display: block; }
 
-  table { width: 100%; border-collapse: collapse; font: 14px var(--sans); font-variant-numeric: tabular-nums; }
-  th { font: 700 11px var(--sans); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--fg); }
+  .tablewrap { overflow-x: auto; padding: 4px 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: var(--t-body); font-variant-numeric: tabular-nums; }
+  th { font: 700 var(--t-label) var(--display); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); text-align: right; padding: 10px 8px; border-bottom: 1px solid var(--line-strong); white-space: nowrap; }
   th:first-child, td:first-child { text-align: left; }
-  td { padding: 7px 8px; border-bottom: 1px solid var(--rule); text-align: right; }
-  td.r { color: var(--rep); } td.d { color: var(--dem); }
+  td { padding: 9px 8px; border-bottom: 1px solid var(--line); text-align: right; }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child { font-weight: 600; }
+  td.r { color: var(--rep); font-weight: 600; } td.d { color: var(--dem); font-weight: 600; }
   .range { position: relative; height: 12px; min-width: 120px; }
-  .range .axis { position: absolute; left: 0; right: 0; top: 5px; height: 1px; background: var(--rule); }
-  .range .zero { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--faint); }
-  .range .span { position: absolute; top: 3px; height: 6px; border-radius: 3px; opacity: .45; }
+  .range .axis { position: absolute; left: 0; right: 0; top: 5px; height: 1px; background: var(--line); }
+  .range .zero { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line-strong); }
+  .range .span { position: absolute; top: 3px; height: 6px; border-radius: 3px; opacity: .35; }
   .range .dot { position: absolute; top: 1px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; }
-  .tablewrap { overflow-x: auto; }
 
-  .panel { background: var(--panel); border: 1px solid var(--rule); padding: 16px; margin-top: 36px; }
-  .panel h2 { margin-top: 0; }
-  .row { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: end; margin-bottom: 14px; }
-  label { font: 12px var(--sans); color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
-  input[type=number], input[type=text], select, textarea { font: 14px var(--sans); padding: 6px 8px; border: 1px solid var(--rule); background: var(--bg); color: var(--fg); border-radius: 3px; }
-  input[type=number] { width: 110px; }
-  textarea { width: 100%; min-height: 90px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
-  button { font: 700 13px var(--sans); padding: 8px 14px; border: 1px solid var(--fg); background: var(--fg); color: var(--bg); border-radius: 3px; cursor: pointer; }
-  button.ghost { background: transparent; color: var(--fg); }
-  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--rule); margin-bottom: 14px; flex-wrap: wrap; }
-  .tabs button { background: none; color: var(--muted); border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 8px 12px; }
-  .tabs button.on { color: var(--fg); border-bottom-color: var(--fg); }
+  details.panel { margin-top: 32px; padding: 0; }
+  details > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 14px 16px; font: 700 var(--t-item) var(--display); }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::after { content: ""; margin-left: auto; width: 8px; height: 8px; border: solid var(--muted); border-width: 0 1.6px 1.6px 0; transform: rotate(45deg); transition: transform .15s; }
+  details[open] > summary::after { transform: rotate(-135deg); }
+  details.panel > :not(summary) { margin-left: 16px; margin-right: 16px; }
+  details.panel[open] { padding-bottom: 16px; }
+  details.method { margin-top: 12px; }
+  details.method p { margin: 0 16px 12px; font-size: var(--t-body); line-height: 1.55; color: var(--ink2); }
+  details.method[open] { padding-bottom: 4px; }
+  .method a { color: var(--accent); }
+
+  .tabs { display: flex; flex-wrap: wrap; padding: 2px; border-radius: var(--r-ctl); background: var(--panel2); margin-bottom: 14px; }
+  .tabs button { flex: 1; border: 0; background: none; cursor: pointer; white-space: nowrap; height: 30px; padding: 0 12px; border-radius: var(--r-tag); font: 700 var(--t-meta)/1 var(--display); color: var(--muted); }
+  .tabs button:hover { color: var(--ink); }
+  .tabs button.on { background: var(--primary); color: #fff; }
   .src { display: none; } .src.on { display: block; }
-  .msg { font: 13px var(--sans); color: var(--muted); margin-top: 8px; min-height: 1em; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: end; margin-bottom: 12px; }
+  label { font: 700 var(--t-label) var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
+  input[type=number], input[type=text], select, textarea { font-size: var(--t-body); padding: 9px 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: var(--r-ctl); transition: border-color .15s, box-shadow .15s; }
+  input:focus, select:focus, textarea:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--tint); }
+  input[type=number] { width: 120px; }
+  textarea { width: 100%; min-height: 90px; font: 12px ui-monospace, Menlo, monospace; }
+  .panel button:not(.tabs button) { cursor: pointer; white-space: nowrap; height: 40px; padding: 0 16px; border-radius: var(--r-ctl); font: 700 var(--t-body)/1 var(--display); background: var(--primary); border: 1px solid var(--primary); color: #fff; transition: background .15s, border-color .15s; }
+  .panel button:not(.tabs button):hover { background: var(--primary-hover); }
+  .panel button.ghost { background: var(--panel); border-color: var(--line); color: var(--ink); }
+  .panel button.ghost:hover { background: var(--panel2); border-color: var(--muted); }
+  .panel button:disabled { opacity: .45; cursor: default; }
+  .msg { font-size: var(--t-meta); color: var(--muted); margin-top: 8px; min-height: 1em; }
   .msg.err { color: var(--rep); }
-  .check { flex-direction: row; align-items: center; gap: 6px; font-size: 13px; color: var(--fg); }
-  .method { font: 15px/1.6 var(--serif); color: var(--fg); }
-  .method p { margin: 0 0 10px; }
+  .check { flex-direction: row; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; font: 600 var(--t-body) var(--display); color: var(--ink); }
+  code { font: 12px ui-monospace, Menlo, monospace; background: var(--panel2); padding: 1px 5px; border-radius: 4px; }
 </style>
 </head>
 <body>
 <main>
   <div class="kicker"><span class="live off" id="live"><i></i><span id="liveTxt">Pre-election</span></span> · Vermont · Governor · Nov. 3, 2026</div>
-  <h1>Live forecast: Who will win the Vermont governor’s race?</h1>
-  <p class="dek">Our estimate of the final result, updated as towns report. It looks at where the votes are still outstanding and how those towns have voted before.</p>
+  <h1>Who will win Vermont governor?</h1>
   <div class="stamp" id="stamp">Waiting for results</div>
 
   <p class="headline-result" id="headline">—</p>
 
   <div class="needles">
-    <div class="gauge">
+    <div class="gauge card">
       <h3>Chance of winning</h3>
-      <svg id="gProb" viewBox="-20 -10 380 205" role="img" aria-label="Chance of winning needle"></svg>
+      <svg id="gProb" viewBox="-50 -14 440 206" role="img" aria-label="Chance of winning needle"></svg>
       <div class="cands"><span class="d" id="nameD1">Janoo</span><span class="r" id="nameR1">Scott</span></div>
       <div class="big" id="probBig">—</div>
     </div>
-    <div class="gauge">
+    <div class="gauge card">
       <h3>Estimated margin</h3>
-      <svg id="gMargin" viewBox="-20 -10 380 205" role="img" aria-label="Estimated margin needle"></svg>
+      <svg id="gMargin" viewBox="-50 -14 440 206" role="img" aria-label="Estimated margin needle"></svg>
       <div class="cands"><span class="d" id="nameD2">Janoo</span><span class="r" id="nameR2">Scott</span></div>
       <div class="big" id="marginBig">—</div>
       <div class="sub" id="marginSub"></div>
     </div>
   </div>
 
-  <div class="stats">
-    <div class="stat"><div class="l">Expected vote counted</div><div class="v" id="sPct">0%</div><div class="bar"><i id="sBar" style="width:0"></i></div></div>
-    <div class="stat"><div class="l">Current margin (counted)</div><div class="v" id="sCur">—</div><div class="s" id="sCurS"></div></div>
+  <div class="stats card">
+    <div class="stat"><div class="l">Vote counted</div><div class="v" id="sPct">0%</div><div class="bar"><i id="sBar" style="width:0"></i></div></div>
+    <div class="stat"><div class="l">Counted margin</div><div class="v" id="sCur">—</div><div class="s" id="sCurS"></div></div>
     <div class="stat"><div class="l">Est. total votes</div><div class="v" id="sTurn">—</div><div class="s" id="sTurnS"></div></div>
     <div class="stat"><div class="l">Towns reporting</div><div class="v" id="sTowns">0 / 246</div><div class="s" id="sTownsS"></div></div>
   </div>
 
-  <h2>How our forecast has changed</h2>
-  <p class="note">Estimated final margin, with the 50% and 90% ranges shaded, and the chance of winning, at each update.</p>
-  <div class="chart"><svg id="hist" viewBox="0 0 820 260"></svg></div>
+  <h2>Forecast over time</h2>
+  <div class="chart card"><svg id="hist" viewBox="0 0 820 260"></svg></div>
 
-  <h2>Results and estimates by county</h2>
-  <p class="note">The projected margin shows the median estimate, with the line covering 80% of the model’s outcomes.</p>
-  <div class="tablewrap"><table id="ctab"></table></div>
+  <h2>By county</h2>
+  <div class="tablewrap card"><table id="ctab"></table></div>
 
-  <section class="panel">
-    <h2>Data and settings</h2>
+  <details class="panel card">
+    <summary>Data and settings</summary>
     <div class="tabs" id="tabs">
       <button data-src="sos" class="on">Vermont SOS live</button>
       <button data-src="demo">Demo night</button>
@@ -141,7 +164,7 @@
     </div>
 
     <div class="src on" data-src="sos">
-      <p class="note">Unofficial town results from the Vermont Secretary of State (electionresults.vermont.gov), read directly by this page. It checks every 2 minutes and downloads the full results only when SOS has posted an update.</p>
+      <p class="note">Unofficial town results from the Vermont Secretary of State.</p>
       <div class="row">
         <button id="sosStart">Start live updates</button>
         <button class="ghost" id="sosOnce">Check now</button>
@@ -151,7 +174,7 @@
     </div>
 
     <div class="src" data-src="demo">
-      <p class="note">This simulates an election night from a randomly chosen “true” result, so you can watch the needle settle.</p>
+      <p class="note">A simulated election night with a hidden result.</p>
       <div class="row">
         <button id="demoPlay">Start demo</button>
         <button class="ghost" id="demoStep">Step</button>
@@ -162,7 +185,7 @@
     </div>
 
     <div class="src" data-src="ap">
-      <p class="note">Run <code>AP_API_KEY=… python3 fetch_ap.py</code>. It is the only thing that contacts AP: once a minute by default, never more often than every 30 seconds, and it backs off on errors. This page re-reads the local <code>results/latest.json</code> it writes, so open tabs don’t add any AP requests. Open the page at http://localhost:8642.</p>
+      <p class="note">Reads <code>results/latest.json</code> written by <code>fetch_ap.py</code> (needs an AP key).</p>
       <div class="row">
         <label>Local file <input type="text" id="apUrl" value="results/latest.json" style="width:220px"></label>
         <label>Re-read every (sec) <input type="number" id="apEvery" value="15" min="5"></label>
@@ -173,7 +196,7 @@
     </div>
 
     <div class="src" data-src="file">
-      <p class="note">Load an AP JSON response (level=ru), or a CSV with columns <code>town, scott, janoo, other, pct_reporting</code>.</p>
+      <p class="note">AP JSON, SOS JSON, or CSV: <code>town, scott, janoo, other, pct_reporting</code>.</p>
       <div class="row"><input type="file" id="fileIn" accept=".json,.csv,.txt"></div>
       <textarea id="pasteIn" placeholder='{"races":[...]}  or  town,scott,janoo,other,pct_reporting'></textarea>
       <div class="row" style="margin-top:8px"><button id="pasteGo">Use pasted data</button></div>
@@ -181,8 +204,7 @@
     </div>
 
     <div class="src" data-src="prior">
-      <p class="note">These are the pre-election assumptions. They matter most early in the night, and the results take over as towns report.</p>
-      <div class="row">
+            <div class="row">
         <label>Prior margin (R−D, pts) <input type="number" id="pMargin" step="1"></label>
         <label>Prior margin SD (pts) <input type="number" id="pSd" step="1" min="2"></label>
         <label>Expected total votes <input type="number" id="pTurn" step="5000"></label>
@@ -195,15 +217,13 @@
         <button id="applyPrior">Apply</button>
       </div>
     </div>
-  </section>
+  </details>
 
-  <h2>About this model</h2>
-  <div class="method">
-    <p>Each Vermont town gets an expected result before any votes are counted. That expectation is a statewide prior (Scott +40 by default, which you can change) adjusted by how the town voted relative to the state in the governor’s races of 2016, 2018, 2020 and 2022, with 2022 weighted most. Each town also gets an expected turnout, based mostly on its share of the statewide vote in the 2022 and 2018 midterms.</p>
-    <p>As towns report, we compare each one with its expected result. The gaps are pooled into a statewide swing and a swing for each county, with the county swings pulled toward the statewide one. Turnout is estimated the same way. The swings are applied to every town still out, and the model runs 2,000 simulations of the full count, adding town-level noise. The chance of winning is the share of simulations a candidate wins.</p>
-    <p>The needles jitter within the model’s uncertainty, as The Times’s needle did. The margin needle moves inside the middle 50% of outcomes. You can turn this off in Model priors.</p>
-    <p class="note">Baseline data: OpenElections town-level returns for 2016–2020 and the Vermont Election Archive for 2022. Essex and Essex Junction are combined into one town. Live data: unofficial town results from the Vermont Secretary of State (electionresults.vermont.gov). The AP Elections API is also supported.</p>
-  </div>
+  <details class="method card">
+    <summary>How this works</summary>
+    <p>Each town starts from how it voted relative to the state in the 2016–2022 governor races. As towns report, the gap between actual and expected results gives a statewide swing and county swings, which are applied to the towns still out. Turnout is handled the same way. The chance of winning is the share of 2,000 simulations each candidate wins. The needles jitter within the model’s uncertainty.</p>
+    <p class="note">Results: Vermont Secretary of State (unofficial). History: OpenElections and the Vermont Election Archive. <a href="https://github.com/dmccullum/vt-needle">Source</a></p>
+  </details>
 </main>
 
 <script src="data/baseline.js"></script>

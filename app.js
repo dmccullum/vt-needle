@@ -117,10 +117,10 @@
 
     const leader = p >= 0.5 ? cfg.rName : cfg.dName, lc = p >= 0.5 ? "r" : "d", d = describe(p);
     let h;
-    if (apCall) h = `<b class="${apCall}">${apCall === "r" ? cfg.rName : cfg.dName}</b> has won, according to The Associated Press.`;
-    else if (!o.counted.total) h = `Before results come in, our model sees <b class="${lc}">${leader}</b> as ${d || "even with the field"}${d ? " to win" : ""}, based on its pre-election assumptions.`;
-    else h = d ? `Our model sees <b class="${lc}">${leader}</b> as ${d} ${d === "leaning toward" ? "a win" : "to win"}, with an estimated ${pct(o.counted.pctIn)} of the vote counted.`
-      : `The race is a toss-up, with an estimated ${pct(o.counted.pctIn)} of the vote counted.`;
+    const verdict = { "very likely": "very likely to win", likely: "likely to win", "leaning toward": "leans ahead" }[d];
+    if (apCall) h = `<b class="${apCall}">${apCall === "r" ? cfg.rName : cfg.dName}</b> wins (AP).`;
+    else if (!o.counted.total) h = `Pre-election: <b class="${lc}">${leader}</b> ${verdict || "even"}.`;
+    else h = verdict ? `<b class="${lc}">${leader}</b> ${verdict}` : "Toss-up";
     $("headline").innerHTML = h;
 
     $("sPct").textContent = pct(Math.min(1, o.counted.pctIn));
@@ -354,7 +354,7 @@
     }
     $("sosStart").textContent = "Live (hosted)"; $("sosStart").disabled = true;
     document.querySelector('.src[data-src="sos"] .note').textContent =
-      "Unofficial town results from the Vermont Secretary of State, collected every 2 minutes by this site’s updater. The page checks for new results every minute.";
+      "Unofficial town results from the Vermont Secretary of State, collected every 2 minutes.";
     await hostedFetch();
     hostedTimer = setInterval(hostedFetch, 60000);
   }
