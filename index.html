@@ -77,6 +77,25 @@
   tr:last-child td { border-bottom: 0; }
   td:first-child { font-weight: 600; }
   td.r { color: var(--rep); font-weight: 600; } td.d { color: var(--dem); font-weight: 600; }
+  .lede { font-size: var(--t-item); line-height: 1.5; margin: -4px 0 14px; color: var(--ink2); }
+  .lede b.d { color: var(--dem); } .lede b.r { color: var(--rep); }
+  .past { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+  @media (max-width: 760px) { .past { grid-template-columns: 1fr; } }
+  .map { margin: 0; padding: 12px 12px 14px; }
+  .map > svg { display: block; width: 100%; max-width: 340px; height: auto; margin: 8px auto 0; overflow: visible; }
+  .map .county { fill: none; stroke: var(--line-strong); stroke-width: .8; }
+  .map .state { fill: var(--panel2); stroke: var(--muted); stroke-width: 1; }
+  .map .dot { fill: var(--line-strong); }
+  .map .city { font: 600 9px var(--display); fill: var(--ink2); paint-order: stroke; stroke: var(--panel2); stroke-width: 3px; }
+  .map figcaption { text-align: center; margin-top: 8px; }
+  .legend-title { font: 700 var(--t-label) var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .legend { width: 180px; height: 34px; display: block; margin: 4px auto 0; }
+  .legend text { font: 500 10px var(--display); fill: var(--muted); }
+  .legend-note { font-size: var(--t-hint); color: var(--muted); max-width: 260px; margin: 4px auto 0; line-height: 1.4; }
+  .seg { display: flex; padding: 2px; border-radius: var(--r-ctl); background: var(--panel2); }
+  .seg button { flex: 1; border: 0; background: none; cursor: pointer; height: 28px; padding: 0 10px; border-radius: var(--r-tag); font: 700 var(--t-meta)/1 var(--display); color: var(--muted); }
+  .seg button:hover { color: var(--ink); }
+  .seg button[aria-pressed="true"] { background: var(--primary); color: #fff; }
   .est { font-weight: 500; color: var(--muted); font-size: var(--t-hint); }
   .range { position: relative; height: 12px; min-width: 120px; }
   .range .axis { position: absolute; left: 0; right: 0; top: 5px; height: 1px; background: var(--line); }
@@ -158,7 +177,19 @@
   <div class="tablewrap card"><table id="ctab"></table></div>
 
   <h2>Compared with past races</h2>
-  <div class="tablewrap card"><table id="ptab"></table></div>
+  <p class="lede" id="pastLede"></p>
+  <div class="past">
+    <div class="tablewrap card"><table id="ptab"></table></div>
+    <figure class="map card">
+      <div class="seg" id="mapYear"><button type="button" data-y="22" aria-pressed="true">vs. 2022</button><button type="button" data-y="16" aria-pressed="false">vs. 2016</button></div>
+      <svg id="shiftMap" role="img" aria-label="Map of the shift in margin by town"></svg>
+      <figcaption>
+        <div class="legend-title">Shift in margin</div>
+        <svg class="legend" viewBox="0 0 180 34" aria-hidden="true"><g id="legendArrows"></g></svg>
+        <div class="legend-note" id="mapNote"></div>
+      </figcaption>
+    </figure>
+  </div>
 
   <details class="panel card">
     <summary>Model settings</summary>
@@ -181,8 +212,9 @@
   </details>
 </main>
 
-<script src="data/baseline.js?v=11"></script>
-<script src="model.js?v=11"></script>
-<script src="app.js?v=11"></script>
+<script src="data/vtmap.js?v=12"></script>
+<script src="data/baseline.js?v=12"></script>
+<script src="model.js?v=12"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>

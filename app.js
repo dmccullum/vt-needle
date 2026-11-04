@@ -185,7 +185,7 @@
     if (label) lastLabel = label;
     $("stamp").textContent = (lastLabel ? lastLabel + " · " : "") + "Updated " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" });
 
-    renderTable(); renderPast(); renderHistory();
+    renderTable(); renderPast(); renderMap(); renderHistory();
   }
 
   // Past governor races: statewide result, and the same towns that have fully reported tonight
@@ -198,15 +198,76 @@
     const now = mg(nr, nd, no);
     const cell = (m) => `<td class="${cls(m)}">${m == null ? "—" : fmtM(m, true)}</td>`;
     const shift = (m) => (now == null || m == null ? "<td>—</td>" : `<td class="${cls(now - m)}">${(now - m > 0 ? "R" : "D")} +${Math.abs(now - m).toFixed(1)}</td>`);
-    const body = [`<tr><td>2026 · Scott vs. ${last(cfg.dName)}</td><td class="${cls(out.margin.med)}">${fmtM(out.margin.med, true)} <span class="est">est.</span></td>${cell(now)}<td>—</td></tr>`];
+    const body = [`<tr><td>2026 · ${last(cfg.dName)}</td><td class="${cls(out.margin.med)}">${fmtM(out.margin.med, true)} <span class="est">est.</span></td>${cell(now)}<td>—</td></tr>`];
     for (const [y, label, dem] of PAST) {
       const k = (f) => f + y;
       const st = mg(...["r", "d", "o"].map((f) => rows.reduce((a, r) => a + r[k(f)], 0)));
       const same = reported.length ? mg(...["r", "d", "o"].map((f) => reported.reduce((a, t) => a + rows[t.i][k(f)], 0))) : null;
-      body.push(`<tr><td>${label} · Scott vs. ${dem}</td>${cell(st)}${cell(same)}${shift(same)}</tr>`);
+      body.push(`<tr><td>${label} · ${dem}</td>${cell(st)}${cell(same)}${shift(same)}</tr>`);
     }
-    $("ptab").innerHTML = `<thead><tr><th>Race</th><th>Statewide</th><th title="Towns fully counted tonight">Same towns (${reported.length})</th><th title="How far tonight\u2019s vote has moved from that race, in the towns fully counted tonight">Shift to 2026</th></tr></thead><tbody>${body.join("")}</tbody>`;
+    $("ptab").innerHTML = `<thead><tr><th title="Scott against the Democratic nominee">Race</th><th>Statewide</th><th title="Towns fully counted tonight">Same towns (${reported.length})</th><th title="How far tonight\u2019s vote has moved from that race, in the towns fully counted tonight">Shift to 2026</th></tr></thead><tbody>${body.join("")}</tbody>`;
   }
+
+  // Shift-in-margin map: an arrow per fully counted town, tilted up-left (more Dem.) or
+  // up-right (more Rep.) with length proportional to the shift since the chosen race.
+  let mapYear = 22;
+  const MAPNAMES = { 22: "2022", 16: "2016" };
+  const arrowPath = (x, y, len, right) => {
+    const a = (30 * Math.PI) / 180, dx = Math.cos(a) * len * (right ? 1 : -1), dy = -Math.sin(a) * len;
+    const ex = x + dx, ey = y + dy, h = Math.min(4, 2 + len * 0.12), ux = dx / len, uy = dy / len;
+    const bx = ex - ux * h * 1.6, by = ey - uy * h * 1.6;
+    return { line: `M${x},${y}L${bx.toFixed(1)},${by.toFixed(1)}`, head: `M${ex.toFixed(1)},${ey.toFixed(1)}L${(bx - uy * h).toFixed(1)},${(by + ux * h).toFixed(1)}L${(bx + uy * h).toFixed(1)},${(by - ux * h).toFixed(1)}Z` };
+  };
+  function renderMap() {
+    const V = window.VT_MAP, svg = $("shiftMap"); if (!V || !svg) return;
+    const rows = window.VT_BASELINE, y = mapYear;
+    svg.setAttribute("viewBox", `-6 -6 ${V.w + 12} ${V.h + 12}`);
+    svg.innerHTML = "";
+    el("path", { d: V.state, class: "state" }, svg);
+    V.counties.forEach((c) => el("path", { d: c.d, class: "county" }, svg));
+    const shifts = [];
+    let sr = 0, sd = 0, so = 0, pr = 0, pd = 0, po = 0;
+    for (const t of model.towns) {
+      const p = V.towns[t.name]; if (!p) continue;
+      const x = results.get(t.key), b = rows[t.i];
+      if (!x || x.frac < 0.999) { el("circle", { cx: p[0], cy: p[1], r: 1.6, class: "dot" }, svg); continue; }
+      const tot = x.r + x.d + x.o, ptot = b["r" + y] + b["d" + y] + b["o" + y];
+      if (!tot || !ptot) continue;
+      const sh = (100 * (x.r - x.d)) / tot - (100 * (b["r" + y] - b["d" + y])) / ptot;
+      shifts.push({ p, sh, tot });
+      sr += x.r; sd += x.d; so += x.o; pr += b["r" + y]; pd += b["d" + y]; po += b["o" + y];
+    }
+    // Scale so a typical (90th-percentile) shift draws about 26 units long
+    const mags = shifts.map((s) => Math.abs(s.sh)).sort((a, b) => a - b);
+    const ref = Math.max(5, mags.length ? mags[Math.floor(mags.length * 0.9)] : 10), k = 26 / ref;
+    const g = el("g", {}, svg);
+    shifts.sort((a, b) => a.tot - b.tot).forEach(({ p, sh }) => {
+      const len = Math.max(2.5, Math.min(44, Math.abs(sh) * k)), ap = arrowPath(p[0], p[1], len, sh > 0), col = css(sh > 0 ? "--rep" : "--dem");
+      el("path", { d: ap.line, stroke: col, "stroke-width": 1.4, "stroke-linecap": "round", fill: "none", "stroke-opacity": 0.85 }, g);
+      el("path", { d: ap.head, fill: col, "fill-opacity": 0.85 }, g);
+    });
+    V.labels.forEach(([n, x, yy]) => { const t = el("text", { x: x + 4, y: yy - 3, class: "city" }, svg); t.textContent = n.replace(/ City$/, ""); });
+    // Legend
+    const lg = $("legendArrows"); lg.innerHTML = "";
+    [[false, 62, "More Dem."], [true, 104, "More Rep."]].forEach(([right, x, label]) => {
+      const ap = arrowPath(x + (right ? -10 : 10), 18, 22, right), col = css(right ? "--rep" : "--dem");
+      el("path", { d: ap.line, stroke: col, "stroke-width": 2, "stroke-linecap": "round", fill: "none" }, lg);
+      el("path", { d: ap.head, fill: col }, lg);
+      const t = el("text", { x: right ? x + 8 : x - 8, y: 31, "text-anchor": right ? "start" : "end" }, lg); t.textContent = label;
+    });
+    const n = shifts.length, name = MAPNAMES[y];
+    $("mapNote").textContent = n ? `Compared with ${name}, in the ${n} towns fully counted. Longer arrows mean bigger shifts.` : "Arrows appear as towns finish counting.";
+    // One-line summary above the table
+    if (n) {
+      const shift = (100 * (sr - sd)) / (sr + sd + so) - (100 * (pr - pd)) / (pr + pd + po), side = shift > 0 ? "r" : "d";
+      $("pastLede").innerHTML = `The towns that are fully counted voted <b class="${side}">${Math.abs(shift).toFixed(0)} points more ${shift > 0 ? "Republican" : "Democratic"}</b> than they did in the ${name} governor’s race.`;
+    } else $("pastLede").textContent = "";
+  }
+  document.querySelectorAll("#mapYear button").forEach((b) => (b.onclick = () => {
+    mapYear = +b.dataset.y;
+    document.querySelectorAll("#mapYear button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    renderMap();
+  }));
 
   function renderTable() {
     const lim = 80;
